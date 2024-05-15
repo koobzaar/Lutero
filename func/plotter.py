@@ -37,9 +37,21 @@ def plot_data(digits, frequencies, expected_values, country_name):
     Returns:
         None
     """
-    plt.plot(digits, frequencies, label='Real Data')
-    plt.plot(digits, expected_values, label='Expected Values', color='grey')
-    plt.fill_between(digits, [i - 0.1 * i for i in expected_values], [i + 0.1 * i for i in expected_values], color='grey', alpha=0.2)
+    plt.plot(digits, frequencies, label='Dados Reais')
+    plt.plot(digits, expected_values, label='Valores Esperados', color='grey')
+
+    # Define the ranges for the different colors
+    green_range_upper = [i + 0.3 * i for i in expected_values]
+    green_range_lower = [i - 0.3 * i for i in expected_values]
+    yellow_range_upper = [i + 0.6 * i for i in expected_values]
+    yellow_range_lower = [i - 0.6 * i for i in expected_values]
+    red_range_upper = [i + i for i in expected_values]
+    red_range_lower = [i - i for i in expected_values]
+
+    # Fill the areas with the corresponding colors
+    plt.fill_between(digits, green_range_lower, green_range_upper, color='green', alpha=0.2)
+    plt.fill_between(digits, yellow_range_lower, yellow_range_upper, color='yellow', alpha=0.2)
+    plt.fill_between(digits, red_range_lower, red_range_upper, color='red', alpha=0.2)
 
     plt.xlabel('Primeiro Dígito')
     plt.ylabel('Frequência')
@@ -48,7 +60,6 @@ def plot_data(digits, frequencies, expected_values, country_name):
     plt.yticks([i/10 for i in range(0, 11)])
 
     plt.legend()
-
 def sanitize_filename(filename):
     """
     Sanitize the filename by removing invalid characters.
