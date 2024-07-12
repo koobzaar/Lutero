@@ -8,28 +8,16 @@ class Converter:
         
     def _load_data(self):
         data = []
+        # Implementação ridícula. Deveria ser aberto linha por linha, e não carregar tudo de uma vez
         for file_path in glob.glob(self.data_path + '/*.csv'):
+            # Solução ridícula. Mas ocupa menos espaço na memória que verificar via amostra
+            if 'brasil_ministerio_saude' in file_path:
+                delimiter = ';'
+            else:
+                delimiter = ','
             with open(file_path, 'r', encoding='utf-8') as file:
-                # Lê uma pequena amostra do arquivo para determinar o delimitador
-                sample = file.read(1024)
-                file.seek(0)  # Retorna ao início do arquivo após a leitura da amostra
-                # Usa o Sniffer para detectar o delimitador
-                sniffer = csv.Sniffer()
-                dialect = sniffer.sniff(sample)
-                csv_reader = csv.reader(file, dialect)
-                # Pula o cabeçalho para arquivos subsequentes
-                next(csv_reader, None)
-                for row in csv_reader:
-                    data.append(row)
+                data.extend(list(csv.reader(file, delimiter=delimiter)))
         return data
 
-    def get_data_coverted(self):
+    def get_data_converted(self):
         return self.data
-    
-   
-
-   
-
-
-        
-        

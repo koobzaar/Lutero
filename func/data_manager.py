@@ -131,24 +131,33 @@ class Data(IDeathData, ICountryData):
         death_variation = [j-i for i, j in zip(death_data[:-1], death_data[1:])]
         return death_variation
 
-    def get_death_variation_for_CVI(self, cvi_data):
+    def get_death_variation_for_CVI(self, raw_data):
         # return only the 6 column of each line
         death_variation = []
-        for i in range(1, len(cvi_data)):
-            if(cvi_data[i][5] == '' or int(cvi_data[i][5]) < 0):
+        for i in range(1, len(raw_data)):
+            if(raw_data[i][5] == '' or int(raw_data[i][5]) < 0):
                 continue
-            death_variation.append(int(cvi_data[i][5]))
+            death_variation.append(int(raw_data[i][5]))
         return death_variation
 
-    def get_death_variation_for_BMS(self, bms_data):
+    def get_death_variation_for_BMS(self, raw_data):
         # return only the 6 column of each line
-        print(bms_data[3][0])
-        print(len(bms_data))
         death_variation = []
-        for i in range(1, len(bms_data)):
-            if(bms_data[i][0]!='Brasil' or bms_data[i][13] == '' or int(bms_data[i][13]) < 0):
+        for i in range(1, len(raw_data)):
+            if(raw_data[i][0]!='Brasil' or raw_data[i][13] == '' or int(raw_data[i][13]) < 0):
                 continue
-            death_variation.append(int(bms_data[i][13]))
+            death_variation.append(int(raw_data[i][13]))
+        print(death_variation)
+        print(len(death_variation))
+        return death_variation
+
+    def get_death_variation_for_USA(self, raw_data):
+        # return only the 6 column of each line
+        death_variation = []
+        for i in range(1, len(raw_data)):
+            if(raw_data[i][2] == '' or not raw_data[i][2].isdigit() or int(raw_data[i][2]) < 0):
+                continue
+            death_variation.append(int(raw_data[i][2]))
         print(death_variation)
         print(len(death_variation))
         return death_variation

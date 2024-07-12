@@ -26,7 +26,7 @@ def calculate_benford_data(country_name, death_variance):
 
     return benford_data
 
-def plot_data(digits, frequencies, expected_values, country_name, tolerance_area):
+def plot_data(digits, frequencies, expected_values, country_name, tolerance_area, sizeAmostra):
     """
     Plot the Benford's Law distribution.
 
@@ -41,8 +41,9 @@ def plot_data(digits, frequencies, expected_values, country_name, tolerance_area
     """
     lowerTolerance, higherTolerance = tolerance_area
     
-    
-    plt.plot(digits, higherTolerance, label='Tolerância',color="#8577ff", ls='dotted', alpha=0.5)
+    mad = func.tester.calculateMAD(frequencies)
+    print(mad)
+    plt.plot(digits, higherTolerance, label='Tolerância Superior',color="#8577ff", ls='dotted', alpha=0.5)
     plt.scatter(digits, higherTolerance, color='#8577ff', marker='x', s=10, linewidths=1)
 
    
@@ -53,7 +54,7 @@ def plot_data(digits, frequencies, expected_values, country_name, tolerance_area
     plt.scatter(digits, expected_values, color='grey', marker='x', s=10, linewidths=1)
 
    
-    plt.plot(digits, lowerTolerance, label='Tolerância', color="#01a833", ls='dotted', alpha=0.5)
+    plt.plot(digits, lowerTolerance, label='Tolerância Inferior', color="#01a833", ls='dotted', alpha=0.5)
     plt.scatter(digits, lowerTolerance, color='#01a833', marker='x', s=10, linewidths=1)
     
     for i, digit in enumerate(digits):
@@ -61,7 +62,7 @@ def plot_data(digits, frequencies, expected_values, country_name, tolerance_area
     
     plt.xlabel('Primeiro Dígito')
     plt.ylabel('Frequência')
-    plt.title(f'Distribuição da Lei de Benford para {country_name}')
+    plt.title(f'Distribuição da Lei de Benford para {country_name}\nMAD={mad:.4f} | n={sizeAmostra}')
     plt.xticks(digits)
     valor_maximo = max(frequencies)
     ticks = np.arange(0, valor_maximo + 0.05, 0.05)
@@ -72,7 +73,8 @@ def plot_data(digits, frequencies, expected_values, country_name, tolerance_area
     box = ax.get_position()
     ax.set_position([box.x0, box.y0 + box.height * 0.1,
                  box.width, box.height * 0.9])
-    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.13), ncol=5, frameon=False)
+    ncol = 3 if len(country_name) > 4 else 5
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.11), ncol=ncol, frameon=False)
 
 def sanitize_filename(filename):
     """
@@ -131,8 +133,7 @@ def plot_benford_law(country_name, death_variance):
     digits = list(range(1, 10))
     frequencies = benford_data
     expected_values = [0.301, 0.176, 0.125, 0.097, 0.079, 0.067, 0.058, 0.051, 0.046]
-
-    plot_data(digits, frequencies, expected_values, country_name, tolerance_area=(upper, lower))
+    plot_data(digits, frequencies, expected_values, country_name, tolerance_area=(upper, lower), sizeAmostra=len(death_variance))
     save_plot(country_name)
 
     return benford_data

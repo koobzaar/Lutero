@@ -26,4 +26,12 @@ def calculateAreaOfTolerance(day_by_day_variance):
 
     return lowerBounds, upperBounds
 
+def calculateMAD(frequency):
+    arrBenford = benfordLawArray()
+    sizeOfData = len(frequency)
+    print(sizeOfData)
+    mad = 0
+    for i in range(0, 9):
+        mad += abs(arrBenford[i] - frequency[i])
+    return mad/sizeOfData
 
