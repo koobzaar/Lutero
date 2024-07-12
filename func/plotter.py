@@ -3,6 +3,8 @@ import func.benford
 import os
 import re
 import string
+import func.tester
+import numpy as np
 
 def calculate_benford_data(country_name, death_variance):
     """
@@ -24,7 +26,7 @@ def calculate_benford_data(country_name, death_variance):
 
     return benford_data
 
-def plot_data(digits, frequencies, expected_values, country_name):
+def plot_data(digits, frequencies, expected_values, country_name, tolerance_area):
     """
     Plot the Benford's Law distribution.
 
@@ -37,29 +39,41 @@ def plot_data(digits, frequencies, expected_values, country_name):
     Returns:
         None
     """
-    plt.plot(digits, frequencies, label='Dados Reais')
-    plt.plot(digits, expected_values, label='Valores Esperados', color='grey')
+    lowerTolerance, higherTolerance = tolerance_area
+    
+    
+    plt.plot(digits, higherTolerance, label='Tolerância',color="#8577ff", ls='dotted', alpha=0.5)
+    plt.scatter(digits, higherTolerance, color='#8577ff', marker='x', s=10, linewidths=1)
 
-    # Define the ranges for the different colors
-    green_range_upper = [i + 0.3 * i for i in expected_values]
-    green_range_lower = [i - 0.3 * i for i in expected_values]
-    yellow_range_upper = [i + 0.6 * i for i in expected_values]
-    yellow_range_lower = [i - 0.6 * i for i in expected_values]
-    red_range_upper = [i + i for i in expected_values]
-    red_range_lower = [i - i for i in expected_values]
+   
+    plt.plot(digits, frequencies, label={country_name}, color='#ff8577', alpha=0.9)
+    plt.scatter(digits, frequencies, color='red', marker='x', s=10, linewidths=1)
 
-    # Fill the areas with the corresponding colors
-    plt.fill_between(digits, green_range_lower, green_range_upper, color='green', alpha=0.2)
-    plt.fill_between(digits, yellow_range_lower, yellow_range_upper, color='yellow', alpha=0.2)
-    plt.fill_between(digits, red_range_lower, red_range_upper, color='red', alpha=0.2)
+    plt.plot(digits, expected_values, label='Benford', color='grey', ls='--')
+    plt.scatter(digits, expected_values, color='grey', marker='x', s=10, linewidths=1)
 
+   
+    plt.plot(digits, lowerTolerance, label='Tolerância', color="#01a833", ls='dotted', alpha=0.5)
+    plt.scatter(digits, lowerTolerance, color='#01a833', marker='x', s=10, linewidths=1)
+    
+    for i, digit in enumerate(digits):
+        plt.vlines(x=digit, ymin=lowerTolerance[i], ymax=higherTolerance[i], colors='black', linestyles='solid', linewidth=0.5)
+    
     plt.xlabel('Primeiro Dígito')
     plt.ylabel('Frequência')
     plt.title(f'Distribuição da Lei de Benford para {country_name}')
     plt.xticks(digits)
-    plt.yticks([i/10 for i in range(0, 11)])
+    valor_maximo = max(frequencies)
+    ticks = np.arange(0, valor_maximo + 0.05, 0.05)
+    plt.yticks(ticks)
+    plt.grid(axis='y')
 
-    plt.legend()
+    ax = plt.subplot(111)
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0 + box.height * 0.1,
+                 box.width, box.height * 0.9])
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.13), ncol=5, frameon=False)
+
 def sanitize_filename(filename):
     """
     Sanitize the filename by removing invalid characters.
@@ -105,6 +119,10 @@ def plot_benford_law(country_name, death_variance):
     Returns:
         None
     """
+
+    # Generating the tolerance area
+    upper, lower = func.tester.calculateAreaOfTolerance(death_variance)
+
     benford_data = calculate_benford_data(country_name, death_variance)
 
     if benford_data is None:
@@ -114,7 +132,7 @@ def plot_benford_law(country_name, death_variance):
     frequencies = benford_data
     expected_values = [0.301, 0.176, 0.125, 0.097, 0.079, 0.067, 0.058, 0.051, 0.046]
 
-    plot_data(digits, frequencies, expected_values, country_name)
+    plot_data(digits, frequencies, expected_values, country_name, tolerance_area=(upper, lower))
     save_plot(country_name)
 
     return benford_data
