@@ -40,9 +40,13 @@ def plot_data(digits, frequencies, expected_values, country_name, tolerance_area
         None
     """
     lowerTolerance, higherTolerance = tolerance_area
-    
     mad = func.tester.calculateMAD(frequencies)
-    print(mad)
+    
+    if not os.path.exists('results'):
+        os.makedirs('results')
+    with open('results/mad.txt', 'a') as file:
+        file.write(f"{country_name},{mad}\n")
+
     plt.plot(digits, higherTolerance, label='Tolerância Superior',color="#8577ff", ls='dotted', alpha=0.5)
     plt.scatter(digits, higherTolerance, color='#8577ff', marker='x', s=10, linewidths=1)
 
