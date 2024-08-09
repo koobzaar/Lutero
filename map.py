@@ -11,8 +11,8 @@ countries = []
 mad = []
 with open('results/mad.txt', 'r') as file:
     for line in file:
-        countries.append(line.split(':')[0])
-        mad.append(float(line.split(':')[1].strip()))
+        countries.append(line.split(',')[0])
+        mad.append(float(line.split(',')[1].strip()))
 
 # Normalizar os valores de 'mad'
 mad = np.array(mad)  # Já convertido para float durante a leitura
@@ -52,10 +52,4 @@ print(quantity)
 
 # Definir os limites para as Américas
 # Definir os limites para a América do Sul
-xlim = (-81.0, -34.0)  # Longitudes mínima e máxima para a América do Sul
-ylim = (-55.0, 12.0)  # Latitudes mínima e máxima para a América do Sul
-
-ax.set_xlim(xlim)
-ax.set_ylim(ylim)
-
 plt.show()

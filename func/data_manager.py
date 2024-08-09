@@ -154,7 +154,7 @@ class Data(IDeathData, ICountryData):
     def get_death_variation_for_USA(self, raw_data):
         # return only the 6 column of each line
         death_variation = []
-        for i in range(1, len(raw_data)):
+        for i in range(3, len(raw_data)):
             if(raw_data[i][2] == '' or not raw_data[i][2].isdigit() or int(raw_data[i][2]) < 0):
                 continue
             death_variation.append(int(raw_data[i][2]))
