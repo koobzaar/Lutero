@@ -1,30 +1,15 @@
 import matplotlib.pyplot as plt
-import func.benford
 import os
 import re
 import string
 import func.tester
 import numpy as np
 
-def calculate_benford_data(country_name, death_variance):
-    """
-    Calculate the Benford's Law distribution for a given country.
+import func.benford as benford
 
-    Args:
-        country_name (str): The country name.
-        death_variance (list): The death variance data.
+from collections import Counter
 
-    Returns:
-        list: The Benford's Law data.
-    """
-    data = func.benford.CountryData(country_name, death_variance)
-    benford_data = data.calculate_benford_law()
 
-    if len(benford_data) != 9:
-        print(f"Os dados de Benford para {country_name} não têm o tamanho esperado. Ignorando este país.")
-        return None
-
-    return benford_data
 
 def plot_data(digits, frequencies, expected_values, country_name, tolerance_area, sizeAmostra):
     """
@@ -129,8 +114,7 @@ def plot_benford_law(country_name, death_variance):
 
     # Generating the tolerance area
     upper, lower = func.tester.calculateAreaOfTolerance(death_variance)
-
-    benford_data = calculate_benford_data(country_name, death_variance)
+    benford_data = benford.caculate_first_digit_distribution(death_variance)
 
     if benford_data is None:
         return
@@ -154,7 +138,7 @@ def plot_multiple_data(country_name, death_variance, color):
     Returns:
         None
     """
-    benford_data = calculate_benford_data(country_name, death_variance)
+    benford_data = benford.caculate_first_digit_distribution(death_variance)
     if benford_data is None:
         return
     frequencies = benford_data

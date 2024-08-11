@@ -1,18 +1,35 @@
 from collections import Counter
-import numpy as np
 
-class BenfordLaw:
-    @staticmethod
-    def calculate(numbers):
-        first_digits = [int(str(abs(number))[0]) for number in numbers if number != 0]
-        counts = Counter(first_digits)
-        total = len(first_digits)
-        return [count / total for digit, count in counts.items()]
+def reduce_data_to_first_digit(dataset):
+    return [int(str(abs(number))[0]) for number in dataset if number != 0]
 
-class CountryData:
-    def __init__(self, country_name, numbers):
-        self.country_name = country_name
-        self.numbers = numbers
+def count_digit_appearance(reduced_dataset):
+    return Counter(reduced_dataset)
 
-    def calculate_benford_law(self):
-        return BenfordLaw.calculate(self.numbers)
+def all_digits_are_present(benford_data_for_a_country):
+    return len(set(benford_data_for_a_country)) == 9
+
+
+
+def caculate_first_digit_distribution(dataset):
+    """
+    Calculate the Benford's Law distribution for a given country.
+
+    Args:
+        dataset (list): The death variance data.
+
+    Returns:
+        list: The Benford's Law data.
+    """
+    reduced_dataset = reduce_data_to_first_digit(dataset)
+
+    amount_of_each_digit = count_digit_appearance(reduced_dataset)
+
+    dataset_size = len(amount_of_each_digit)
+
+    benford_data = [count / dataset_size for digit, count in amount_of_each_digit.items()]
+
+    if not all_digits_are_present(benford_data):        
+        return None
+    else:
+        return benford_data
