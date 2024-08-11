@@ -65,6 +65,7 @@ def main(country=None, all_countries=False, cvi=False, bms=False, usa=False, spe
                 ax.set_position([box.x0, box.y0 + box.height * 0.05, box.width, box.height])
                 ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.14), ncol=5, frameon=False)
                 plt.show()
+                
     
     elif cvi:
         data = load_data(config.CVI_DATA_PATH)
