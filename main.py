@@ -3,6 +3,9 @@ import config
 import func.csv_data_converter
 import func.data_manager
 import func.plotter
+
+from func.conversor import get_data_from_csv
+
 import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
@@ -12,7 +15,7 @@ def main(country=None, all_countries=False, cvi=False, bms=False, usa=False, spe
     # data_manager = func.data_manager.Data(data);
     # countries = data_manager.get_all_available_countries();
     if all_countries:
-        data = func.csv_data_converter.Converter(config.DATA_PATH)._load_data();
+        data = get_data_from_csv(config.DATA_PATH);
         data_manager = func.data_manager.Data(data);
         countries = data_manager.get_all_available_countries();
         with tqdm(total=len(countries), desc='Processing countries') as pbar:
@@ -22,7 +25,7 @@ def main(country=None, all_countries=False, cvi=False, bms=False, usa=False, spe
                 pbar.update()
                 
     elif specific_countries:
-        data = func.csv_data_converter.Converter(config.DATA_PATH)._load_data();
+        data = get_data_from_csv(config.DATA_PATH);
         data_manager = func.data_manager.Data(data);
         countries = data_manager.get_all_available_countries();
         cmap = plt.get_cmap('viridis')
@@ -53,14 +56,14 @@ def main(country=None, all_countries=False, cvi=False, bms=False, usa=False, spe
             plt.show()
             # plt.savefig(f'results/specific_countries_benford_law.png')
     elif cvi:
-        cvi_data = func.csv_data_converter.Converter(config.CVI_DATA_PATH)._load_data();
+        cvi_data = get_data_from_csv(config.CVI_DATA_PATH)
         data_manager = func.data_manager.Data(cvi_data);
         death_variation = data_manager.get_death_variation_for_CVI(cvi_data);
         print(len(death_variation))
         benford_value = func.plotter.plot_benford_law("CVI", death_variation);
 
     elif bms:
-        bms_data = func.csv_data_converter.Converter(config.BRAZIL_MS_DATA_PATH)._load_data();
+        bms_data = get_data_from_csv(config.BRAZIL_MS_DATA_PATH)
         data_manager = func.data_manager.Data(bms_data);
         death_variation = data_manager.get_death_variation_for_BMS(bms_data);
         print(len(death_variation))
@@ -73,7 +76,7 @@ def main(country=None, all_countries=False, cvi=False, bms=False, usa=False, spe
         benford_value = func.plotter.plot_benford_law("USA", death_variation);
     
     elif country:
-        data = func.csv_data_converter.Converter(config.DATA_PATH)._load_data();
+        data = get_data_from_csv(config.DATA_PATH);
         data_manager = func.data_manager.Data(data);
         countries = data_manager.get_all_available_countries();
         if country not in countries:

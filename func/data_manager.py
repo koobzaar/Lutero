@@ -158,8 +158,7 @@ class Data(IDeathData, ICountryData):
             if(raw_data[i][2] == '' or not raw_data[i][2].isdigit() or int(raw_data[i][2]) < 0):
                 continue
             death_variation.append(int(raw_data[i][2]))
-        print(death_variation)
-        print(len(death_variation))
+
         return death_variation
 
 

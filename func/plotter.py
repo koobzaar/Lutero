@@ -9,8 +9,6 @@ import func.benford as benford
 
 from collections import Counter
 
-
-
 def plot_data(digits, frequencies, expected_values, country_name, tolerance_area, sizeAmostra):
     """
     Plot the Benford's Law distribution.

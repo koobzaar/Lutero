@@ -9,7 +9,8 @@ def count_digit_appearance(reduced_dataset):
 def all_digits_are_present(benford_data_for_a_country):
     return len(set(benford_data_for_a_country)) == 9
 
-
+def calculate_benford_distribution_for_data(amount_of_each_digit, dataset_size):
+    return [count / dataset_size for digit, count in amount_of_each_digit.items()]
 
 def caculate_first_digit_distribution(dataset):
     """
@@ -25,11 +26,11 @@ def caculate_first_digit_distribution(dataset):
 
     amount_of_each_digit = count_digit_appearance(reduced_dataset)
 
-    dataset_size = len(amount_of_each_digit)
+    dataset_size = len(reduced_dataset)
 
-    benford_data = [count / dataset_size for digit, count in amount_of_each_digit.items()]
+    benford_data = calculate_benford_distribution_for_data(amount_of_each_digit, dataset_size)
 
-    if not all_digits_are_present(benford_data):        
+    if not all_digits_are_present(amount_of_each_digit):
         return None
     else:
         return benford_data
