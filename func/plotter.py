@@ -23,7 +23,7 @@ def plot_data(digits, frequencies, expected_values, country_name, tolerance_area
         None
     """
     lowerTolerance, higherTolerance = tolerance_area
-    mad = func.tester.calculateMAD(frequencies)
+    mad = func.tester.calculate_MAD(frequencies)
     
     if not os.path.exists('results'):
         os.makedirs('results')
@@ -34,7 +34,7 @@ def plot_data(digits, frequencies, expected_values, country_name, tolerance_area
         plt.plot(digits, higherTolerance, label='Tolerância Superior',color="#8577ff", ls='dotted', alpha=0.5)
         plt.scatter(digits, higherTolerance, color='#8577ff', marker='x', s=10, linewidths=1)
 
-   
+    print (frequencies)
     plt.plot(digits, frequencies, label=country_name, color='#ff8577', alpha=0.9)
     plt.scatter(digits, frequencies, color='red', marker='x', s=10, linewidths=1)
 
@@ -111,7 +111,7 @@ def plot_benford_law(country_name, death_variance):
     """
 
     # Generating the tolerance area
-    upper, lower = func.tester.calculateAreaOfTolerance(death_variance)
+    upper, lower = func.tester.calculate_area_of_tolerance(death_variance)
     benford_data = benford.caculate_first_digit_distribution(death_variance)
 
     if benford_data is None:
@@ -140,20 +140,11 @@ def plot_multiple_data(country_name, death_variance, color):
     if benford_data is None:
         return
     frequencies = benford_data
+    print (frequencies)
     digits = list(range(1, 10))
     expected_values = [0.301, 0.176, 0.125, 0.097, 0.079, 0.067, 0.058, 0.051, 0.046]
     plot_multiple_data_in_graph(digits, frequencies, expected_values, country_name, color)
     
-def generate_random_visible_hex_color():
-    """
-    Generate a random visible hex color.
-
-    Returns:
-        str: The hex color.
-    """
-    r = lambda: np.random.randint(0, 255)
-    return '#%02X%02X%02X' % (r(), r(), r())
-
 def plot_multiple_data_in_graph(digits, frequencies, expected_values, country_name, current_color):
    
     plt.plot(digits, frequencies, label=country_name, color=current_color, alpha=0.8)

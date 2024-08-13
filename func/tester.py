@@ -1,37 +1,22 @@
 import math
+
 def benford_law_array():
-    benfordLaw = []
-    for i in range(1, 10):
-        benfordLaw.append(math.log10(1 + 1/i))
-    return benfordLaw
+    return [math.log10(1 + 1/i) for i in range(1, 10)]
 
 def calulate_standard_deviations(day_by_day_variance):
-    sizeOfData = len(day_by_day_variance)
-    arrBenford = benford_law_array()
-    standardDeviations = []
-    for i in range(0, 9):
-        standardDeviations.append(math.sqrt((arrBenford[i]*(1-arrBenford[i]))/sizeOfData))
-    return standardDeviations
+    data_size = len(day_by_day_variance)
+    arr_benford = benford_law_array()
+    return [math.sqrt((arr_benford[i] * (1 - arr_benford[i])) / data_size) for i in range(9)]
 
-def calculateAreaOfTolerance(day_by_day_variance):
-    arrBenford = benford_law_array()
-    standardDeviations = calulate_standard_deviations(day_by_day_variance)
-    lowerBounds = []
-    for i in range(0, 9):
-        lowerBounds.append(arrBenford[i] - 1.96 * standardDeviations[i])
+def calculate_area_of_tolerance(day_by_day_variance):
+    arr_benford = benford_law_array()
+    standard_deviations = calulate_standard_deviations(day_by_day_variance)
+    lower_bounds = [arr_benford[i] - 1.96 * standard_deviations[i] for i in range(9)]
+    upper_bounds = [arr_benford[i] + 1.96 * standard_deviations[i] for i in range(9)]
+    return lower_bounds, upper_bounds
 
-    upperBounds = []
-    for i in range(0, 9):
-        upperBounds.append(arrBenford[i] + 1.96 * standardDeviations[i])
-
-    return lowerBounds, upperBounds
-
-def calculateMAD(frequency):
-    arrBenford = benford_law_array()
-    sizeOfData = len(frequency)
-    print(sizeOfData)
-    mad = 0
-    for i in range(0, 9):
-        mad += abs(arrBenford[i] - frequency[i])
-    return mad/sizeOfData
-
+def calculate_MAD(frequency):
+    arr_benford = benford_law_array()
+    data_size = len(frequency)
+    mad = sum(abs(arr_benford[i] - frequency[i]) for i in range(9))
+    return mad / data_size

@@ -44,8 +44,8 @@ def main(country=None, all_countries=False, cvi=False, bms=False, usa=False, spe
                 if country not in countries:
                     raise ValueError(f"'{country}' is not available. Please choose from the following countries: {', '.join(countries)}")
             
-            cmap = plt.get_cmap('viridis')
-            color = cmap(np.linspace(0, 1, len(specific_countries_list)))
+            cmap = plt.get_cmap('inferno')
+            color = cmap(np.linspace(0.2, 0.9, len(specific_countries_list)))
             current_color_index = 0
             with tqdm(total=len(specific_countries_list), desc='Processing countries') as pbar:
                 for country in specific_countries_list:

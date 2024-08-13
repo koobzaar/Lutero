@@ -11,10 +11,6 @@ ax = world.plot(color='#e2e2e2', edgecolor='black', lw=0.2)
 countries = []
 mad = []
 
-
-countries = []
-mad = []
-
 # O script de mapa só pode ser gerado se houver valores de mad presentes em mad.txt
 # Caso não haja nenhum valor de mad gerado previamente, o script por padrão gera um mapa global
 def check_and_generate_mad():
@@ -36,38 +32,44 @@ def check_and_generate_mad():
 check_and_generate_mad()
 
 # Normalizar os valores de 'mad'
-mad = np.array(mad)  # Já convertido para float durante a leitura
+mad = np.array(list(map(lambda x: x * 100, mad))) # Multiplicar por 100 para facilitar a visualização
 min_mad = mad.min()
 max_mad = mad.max()
 normalized_mad = (mad - min_mad) / (max_mad - min_mad)
 
 # Obter o mapa de cores 'viridis'
-cmap = plt.get_cmap('viridis')
+cmap = plt.get_cmap('magma')
 quantity = 0
 for i, country in enumerate(countries):
     if country in world['ADMIN'].values:
-        quantity+=1
+        quantity += 1
         color = cmap(normalized_mad[i])
-        world[world['ADMIN'] == country].plot(ax=ax, color=color)
+        country_shape = world[world['ADMIN'] == country]
+        country_shape.plot(ax=ax, color=color)
+        
+        # Adicionar rótulo com o valor de MAD
+        representative_point = country_shape.geometry.representative_point()
+               # Adiciona a sombra
+        # Texto principal
+        central_america_countries = [
+    'Belize', 'Costa Rica', 'El Salvador', 'Guatemala', 'Honduras', 'Nicaragua', 'Panama'
+]   
+        if country not in central_america_countries:
+          plt.text(representative_point.x.values[0], representative_point.y.values[0], f'{mad[i]:.1f}', 
+                 fontsize=12, color='white', ha='center', va='center', fontweight='bold')
+
+            
     else:
         print(f"País não encontrado: {country}")
 
-
 sm = ScalarMappable(cmap=cmap, norm=plt.Normalize(vmin=min_mad, vmax=max_mad))
-sm.set_array([]) 
 
 # Ajusta o layout para dar espaço à barra de cores na parte inferior
-ax.set_xticks([])  # Remove os ticks do eixo X
-ax.set_yticks([])  # Remove os ticks do eixo Y
-ax.set_xticklabels([])  # Remove as etiquetas do eixo X
-ax.set_yticklabels([])  # Remove as etiquetas do eixo Y
-ax.xaxis.set_visible(False)  # Esconde o eixo X
-ax.yaxis.set_visible(False)  # Esconde o eixo Y
+# plt.gcf().subplots_adjust(bottom=0.01)
+cbar = plt.colorbar(sm, ax=ax, orientation='vertical', fraction=0.05, pad=0.05)
+cbar.set_label('\nDistribuição de MAD')
 
-plt.gcf().subplots_adjust(bottom=0.2)
-
-cbar = plt.colorbar(sm, ax=ax, orientation='horizontal', fraction=0.1, pad=0.1)
-cbar.set_label('Valor de MAD')
-print(quantity)
-
+#make americas the center of map
+ax.set_xlim(-170, -40)
+ax.set_ylim(-60, 80)
 plt.show()
