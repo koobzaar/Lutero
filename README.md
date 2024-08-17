@@ -28,12 +28,33 @@ The COVID-19 pandemic has generated a massive amount of epidemiological data, ra
 ### Findings
 
 * The analysis reveals varying degrees of adherence to NBL across different countries and data sources.
-* Data from the Brazilian Consortium of Press Vehicles (CVI) showed significant deviations from NBL, raising concerns about its accuracy [FIGURE NUMBER 2].
-* Data from Brazil's Ministry of Health exhibited moderate adherence, with some discrepancies observed [FIGURE NUMBER 3].
-* Japan demonstrated the highest level of conformity to NBL, suggesting data consistency [FIGURE NUMBER 4].
-* The United States data, despite limitations due to sample size, also showed relative adherence [FIGURE NUMBER 5].
-* Analysis of other countries, including France, Germany, Russia, and the United Kingdom, revealed varying patterns of adherence and deviations from NBL [FIGURE NUMBER 6].
-* A global analysis of 128 countries highlighted regional disparities in NBL adherence, with Africa and Asia showing the greatest variability [FIGURE NUMBER 7].
+* Data from the Brazilian Consortium of Press Vehicles (CVI) showed significant deviations from NBL, raising concerns about its accuracy.
+<p align="center">
+    <img src="https://i.imgur.com/CjdlkgO.png">
+</p>
+* Data from Brazil's Ministry of Health exhibited moderate adherence, with some discrepancies observed.
+* <p align="center">
+    <img src="https://i.imgur.com/a6KJc5f.png" alt="Descrição da imagem">
+</p>
+* Japan demonstrated the highest level of conformity to NBL, suggesting data consistency.
+<p align="center">
+      <img src="https://i.imgur.com/iNJ0sCe.png" alt="Descrição da imagem">
+</p>
+* The United States data, despite limitations due to sample size, also showed relative adherence.
+<p align="center">
+    <img src="https://i.imgur.com/fByxG5j.png" alt="Descrição da imagem">
+</p>
+* Analysis of other countries, including France, Germany, Russia, and the United Kingdom, revealed varying patterns of adherence and deviations from NBL.
+<p align="center">
+    <img src="https://i.imgur.com/hgFvdJl.png" alt="Descrição da imagem">
+</p>
+* A global analysis of 128 countries highlighted regional disparities in NBL adherence, with Africa and Asia showing the greatest variability.
+<p align="center">
+      <img src="https://i.imgur.com/Be2OBqb.png" alt="Descrição da imagem">
+      <img src="https://i.imgur.com/yV5y7Ne.png" alt="Descrição da imagem">
+      <img src="https://i.imgur.com/dtNdVFc.jpeg" alt="Descrição da imagem">
+</p>
+
 * Japan and Montenegro exhibited the lowest deviation indices, suggesting high data consistency, while Vietnam and Congo Brazzaville showed the highest, indicating potential data quality issues.
 
 ## How to Use
@@ -57,12 +78,19 @@ The `main.py` script allows you to generate Benford Law plots and analyses for s
 
 **Note:** Ensure that the required datasets are available in the specified paths within the script.
 
+
+## Licence
+Please read the licence.
+
 ## Conclusion
 
 This research underscores the potential of NBL as a tool for assessing data quality and identifying inconsistencies in COVID-19 mortality data. The findings highlight the importance of robust data collection and reporting practices during public health crises and contribute to the ongoing discussion on the applicability of NBL in real-world scenarios.
+
+This article its not public yet.
 
 ## Authors
 
 - @koobzaar (TRIGUEIRO, B. B.) - [Lattes](http://lattes.cnpq.br/2341132684122094) / [LinkedIn](https://www.linkedin.com/in/brunotrigueiro/). Atualmente vinculado a Faculdade de Tecnologia de São Paulo (Fatec-SP). Aluno discente em Análise e Desenvolvimento de Sistemas.
 - **Orientador**: José Augusto Theodosio Pazetti (PAZETTI, J. A. T.) - [Lattes](http://lattes.cnpq.br/8445469805205594). Doutor em Ciências da Saúde pela Universidade Federal de São Paulo.
 - **Coorientador**: Fernando Gonzales Tavares (in memoriam).
+
