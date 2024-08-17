@@ -78,10 +78,6 @@ The `main.py` script allows you to generate Benford Law plots and analyses for s
 
 **Note:** Ensure that the required datasets are available in the specified paths within the script.
 
-
-## Licence
-Please read the licence.
-
 ## Conclusion
 
 This research underscores the potential of NBL as a tool for assessing data quality and identifying inconsistencies in COVID-19 mortality data. The findings highlight the importance of robust data collection and reporting practices during public health crises and contribute to the ongoing discussion on the applicability of NBL in real-world scenarios.
@@ -94,3 +90,6 @@ This article its not public yet.
 - **Orientador**: José Augusto Theodosio Pazetti (PAZETTI, J. A. T.) - [Lattes](http://lattes.cnpq.br/8445469805205594). Doutor em Ciências da Saúde pela Universidade Federal de São Paulo.
 - **Coorientador**: Fernando Gonzales Tavares (in memoriam).
 
+## Licence
+Lutero © 2024 by Bruno Bezerra Trigueiro is licensed under Creative Commons Attribution-NonCommercial 4.0 International. To 
+view a copy of this license, visit https://creativecommons.org/licenses/by-nc/4.0/
