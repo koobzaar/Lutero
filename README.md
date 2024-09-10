@@ -86,7 +86,7 @@ This article its not public yet.
 
 ## Authors
 
-- @koobzaar (TRIGUEIRO, B. B.) - [Lattes](http://lattes.cnpq.br/2341132684122094) / [LinkedIn](https://www.linkedin.com/in/brunotrigueiro/). Atualmente vinculado a Faculdade de Tecnologia de São Paulo (Fatec-SP). Aluno discente em Análise e Desenvolvimento de Sistemas.
+- @koobzaar (TRIGUEIRO, B. B.) - [Lattes](http://lattes.cnpq.br/2341132684122094) / [LinkedIn](https://www.linkedin.com/in/brunotrigueiro/). Atualmente vinculado a Faculdade de Tecnologia de São Paulo (Fatec-SP). Aluno em Análise e Desenvolvimento de Sistemas.
 - **Orientador**: José Augusto Theodosio Pazetti (PAZETTI, J. A. T.) - [Lattes](http://lattes.cnpq.br/8445469805205594). Doutor em Ciências da Saúde pela Universidade Federal de São Paulo.
 - **Coorientador**: Fernando Gonzales Tavares (in memoriam).
 
