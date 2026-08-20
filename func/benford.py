@@ -1,36 +1,35 @@
-from collections import Counter
+"""Newcomb-Benford Law computations for first-significant-digit distributions."""
 
-def reduce_data_to_first_digit(dataset):
-    return [int(str(abs(number))[0]) for number in dataset if number != 0]
+import numpy as np
 
-def count_digit_appearance(reduced_dataset):
-    return Counter(reduced_dataset)
+DIGITS = np.arange(1, 10)
+EXPECTED_FREQUENCIES = np.log10(1 + 1 / DIGITS)
 
-def all_digits_are_present(benford_data_for_a_country):
-    return len(set(benford_data_for_a_country)) == 9
 
-def calculate_benford_distribution_for_data(amount_of_each_digit, dataset_size):
-    return [count / dataset_size for digit, count in amount_of_each_digit.items()]
+def first_significant_digits(values):
+    """Leading (first) significant digit of every nonzero value, as an int array."""
+    values = np.abs(np.asarray(values, dtype=np.int64))
+    values = values[values != 0]
+    if values.size == 0:
+        return values
+    magnitude = np.floor(np.log10(values)).astype(np.int64)
+    return values // (10 ** magnitude)
 
-def caculate_first_digit_distribution(dataset):
+
+def digit_frequencies(values):
     """
-    Calculate the Benford's Law distribution for a given country.
+    Observed first-digit relative frequencies, indexed by digit (frequencies[0] is
+    digit 1, frequencies[8] is digit 9) so they line up positionally with
+    EXPECTED_FREQUENCIES and with each other -- this ordering is load-bearing for
+    every caller that zips the result against DIGITS.
 
-    Args:
-        dataset (list): The death variance data.
-
-    Returns:
-        list: The Benford's Law data.
+    Returns None when at least one digit never occurs in the sample, since NBL
+    conformity is undefined without observations across the full digit range.
     """
-    reduced_dataset = reduce_data_to_first_digit(dataset)
-
-    amount_of_each_digit = count_digit_appearance(reduced_dataset)
-
-    dataset_size = len(reduced_dataset)
-
-    benford_data = calculate_benford_distribution_for_data(amount_of_each_digit, dataset_size)
-
-    if not all_digits_are_present(amount_of_each_digit):
+    first_digits = first_significant_digits(values)
+    if first_digits.size == 0:
         return None
-    else:
-        return benford_data
+    counts = np.bincount(first_digits, minlength=10)[1:10]
+    if np.any(counts == 0):
+        return None
+    return counts / first_digits.size
