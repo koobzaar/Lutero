@@ -1,177 +1,64 @@
-from tqdm import tqdm
-from abc import ABC, abstractmethod
+"""Death-count datasets for Newcomb-Benford Law analysis, backed by pandas."""
 
-class IData(ABC):
-    @abstractmethod
-    def get_data(self):
-        pass
+import pandas as pd
 
-class ICountryData(IData):
-    @abstractmethod
-    def get_all_available_countries(self):
-        pass
+import func.data_loader as data_loader
 
-class IDeathData(IData):
-    @abstractmethod
-    def get_detailed_death_data(self, country_name):
-        pass
+# JHU used these as "Country/Region" values for isolated case clusters, not
+# actual countries; left in, they'd produce nonsense Benford plots under --all.
+NON_COUNTRY_ENTRIES = {
+    "Diamond Princess",
+    "MS Zaandam",
+    "Summer Olympics 2020",
+    "Winter Olympics 2022",
+}
 
 
-class Data(IDeathData, ICountryData):
-    """
-    Represents a data manager for death data and country data.
+class JHUDeaths:
+    """Cumulative COVID-19 deaths by country, from the JHU time-series CSV.
 
-    Args:
-        data (list): The data containing death and country information.
-
-    Attributes:
-        data (list): The data containing death and country information.
-        countries_ids (dict): A dictionary mapping country names to their respective indices in the data.
-
+    Countries reported as multiple sub-national rows (e.g. Canada, Australia,
+    China) are summed into a single country-level total; the original
+    dict-indexing approach silently dropped these countries entirely and
+    leaked their provinces into the country list instead.
     """
 
-    def __init__(self, data):
-        self.data = data
-        self.countries_ids = self._generate_index()
+    def __init__(self, data_path):
+        raw = data_loader.load_jhu(data_path)
+        raw = raw[~raw["Country/Region"].isin(NON_COUNTRY_ENTRIES)]
+        date_columns = raw.columns[4:]
+        totals = raw.groupby("Country/Region")[date_columns].sum()
+        self._daily_totals = totals.apply(pd.to_numeric, errors="coerce")
 
-    def _generate_index(self):
-        """
-        Generates an index mapping country names to their respective indices in the data.
+    def available_countries(self):
+        return sorted(self._daily_totals.index)
 
-        Returns:
-            dict: A dictionary mapping country names to their respective indices.
-
-        """
-        country_ids = {}
-        for i in tqdm(range(1, len(self.data)), desc='Generating index'):
-            if self.data[i][0] == '':
-                country_ids[self.data[i][1]] = i
-            else:
-                country_ids[self.data[i][0]] = i
-        return country_ids
-    
-    def _get_total_days(self, country_name):
-        """
-        Returns the total number of days for a given country.
-
-        Args:
-            country_name (str): The name of the country.
-
-        Returns:
-            int: The total number of days.
-
-        """
-        return len(self.data[self.countries_ids[country_name]][4:])
-
-    def _get_death_variation(self, country_name, current_day):
-        """
-        Returns the difference in deaths between the current day and the previous day.
-
-        Args:
-            country_name (str): The name of the country.
-            current_day (int): The current day.
-
-        Returns:
-            int: The difference in deaths.
-        """
-        if current_day == 0:
-            return int(self.data[self.countries_ids[country_name]][current_day+4])
-        else:
-            return int(self.data[self.countries_ids[country_name]][current_day+4]) - int(self.data[self.countries_ids[country_name]][current_day+3])
-
-    def get_detailed_death_data(self, country_name):
-        """
-        Returns the death data for a given country.
-
-        Args:
-            country_name (str): The name of the country.
-
-        Returns:
-            dict: A dictionary containing the death data for each day, with keys 'Date' and 'Deaths'.
-
-        """
-        total_days = self._get_total_days(country_name)
-        death_data_days = {}
-        for i in tqdm(range(0, total_days), desc='Getting detailed death data'):
-            death_data_days[i] = {
-                "Date": self.data[0][i+4],
-                "Deaths": int(self.data[self.countries_ids[country_name]][i+4]),
-                "Variation": self._get_death_variation(country_name, i)
-            }
-        return death_data_days
-    def get_death_data(self, country_name):
-        """
-        Returns the death data for a given country.
-
-        Args:
-            country_name (str): The name of the country.
-
-        Returns:
-            list: A list containing the death data for each day.
-
-        """
-        total_days = self._get_total_days(country_name)
-        death_data_days = []
-        for i in tqdm(range(0, total_days), desc=f'Processando dados de mortes de: {country_name}'):
-            death_data_days.append(int(float(self.data[self.countries_ids[country_name]][i+4])))
-        return death_data_days
-    
-    def get_death_variation(self, country_name):
-        """
-        Returns the death variation for a given country.
-    
-        Args:
-            country_name (str): The name of the country.
-    
-        Returns:
-            list: A list containing the death variation for each day.
-    
-        """
-        death_data = self.get_death_data(country_name)
-        death_variation = [j-i for i, j in zip(death_data[:-1], death_data[1:])]
-        return death_variation
-
-    def get_death_variation_for_CVI(self, raw_data):
-        # return only the 6 column of each line
-        death_variation = []
-        for i in range(1, len(raw_data)):
-            if(raw_data[i][5] == '' or int(raw_data[i][5]) < 0):
-                continue
-            death_variation.append(int(raw_data[i][5]))
-        return death_variation
-
-    def get_death_variation_for_BMS(self, raw_data):
-        # return only the 6 column of each line
-        death_variation = []
-        for i in range(1, len(raw_data)):
-            if(raw_data[i][0]!='Brasil' or raw_data[i][13] == '' or int(raw_data[i][13]) < 0):
-                continue
-            death_variation.append(int(raw_data[i][13]))
-        print(death_variation)
-        print(len(death_variation))
-        return death_variation
-
-    def get_death_variation_for_USA(self, raw_data):
-        # return only the 6 column of each line
-        death_variation = []
-        for i in range(3, len(raw_data)):
-            if(raw_data[i][2] == '' or not raw_data[i][2].isdigit() or int(raw_data[i][2]) < 0):
-                continue
-            death_variation.append(int(raw_data[i][2]))
-
-        return death_variation
+    def death_variation(self, country):
+        """Day-over-day change in cumulative deaths for a country."""
+        if country not in self._daily_totals.index:
+            raise KeyError(country)
+        return self._daily_totals.loc[country].diff().dropna().astype(int).tolist()
 
 
-    def get_data(self):
-        return self.data
+def _positive_variation(series):
+    values = pd.to_numeric(series, errors="coerce")
+    return values[values >= 0].dropna().astype(int).tolist()
 
-    def get_all_available_countries(self):
-        """
-        Returns all available countries and their respective indices.
 
-        Returns:
-            dict: A dictionary mapping country names to their respective indices.
+def cvi_death_variation(data_path):
+    """Daily death variation reported by Brazil's press-vehicle consortium (CVI)."""
+    df = data_loader.load_cvi(data_path)
+    return _positive_variation(df["variacao_absoluta_sobre_o_dia_anterior"])
 
-        """
-        return self.countries_ids
-    
+
+def brazil_ms_death_variation(data_path):
+    """Daily death variation reported by Brazil's Ministry of Health, national total."""
+    df = data_loader.load_brazil_ministerio_saude(data_path)
+    df = df[df["regiao"] == "Brasil"]
+    return _positive_variation(df["obitosNovos"])
+
+
+def usa_death_variation(data_path):
+    """Weekly death counts reported by the CDC for the United States."""
+    df = data_loader.load_usa(data_path)
+    return _positive_variation(df["Weekly Deaths"])

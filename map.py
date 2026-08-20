@@ -1,75 +1,123 @@
-import matplotlib.pyplot as plt
-import geopandas
-import numpy as np
-from matplotlib.cm import ScalarMappable
+"""World choropleth of Newcomb-Benford Law conformity (MAD) per country.
+
+Run `python main.py --all` first to populate results/mad.txt.
+"""
+
+import argparse
 import os
-import subprocess
 
-world = geopandas.read_file('./world_map/ne_110m_admin_0_countries.shp')
-ax = world.plot(color='#e2e2e2', edgecolor='black', lw=0.2)
+import geopandas
+import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 
-countries = []
-mad = []
+import func.plotter as plotter
+import func.style as style
+import func.tester as tester
 
-# O script de mapa só pode ser gerado se houver valores de mad presentes em mad.txt
-# Caso não haja nenhum valor de mad gerado previamente, o script por padrão gera um mapa global
-def check_and_generate_mad():
-    file_path = 'results/mad.txt'
-    
-    if not os.path.exists(file_path) or os.path.getsize(file_path) == 0:
-        print("Arquivo 'results/mad.txt' não encontrado ou está vazio. Gerando valores de MAD...")
-        
-        subprocess.run(['python', 'main.py', '--all'], check=True)
-        
-        if not os.path.exists(file_path) or os.path.getsize(file_path) == 0:
-            raise FileNotFoundError("Falha ao gerar o arquivo 'results/mad.txt'. Verifique o script main.py.")
-    
-    with open(file_path, 'r') as file:
+SHAPEFILE = "world_map/ne_110m_admin_0_countries.shp"
+MAD_LOG = "results/mad.txt"
+EQUAL_EARTH = "+proj=eqearth"  # equal-area: color intensity isn't confounded by high-latitude area inflation
+
+# JHU's "Country/Region" labels that don't match Natural Earth's ADMIN field.
+NAME_ALIASES = {
+    "US": "United States of America",
+    "Congo (Brazzaville)": "Republic of the Congo",
+    "Congo (Kinshasa)": "Democratic Republic of the Congo",
+    "Cote d'Ivoire": "Ivory Coast",
+    "Burma": "Myanmar",
+    "Taiwan*": "Taiwan",
+    "Serbia": "Republic of Serbia",
+    "Tanzania": "United Republic of Tanzania",
+    "West Bank and Gaza": "Palestine",
+    "Eswatini": "eSwatini",
+}
+
+
+def load_mad_values(mad_log=MAD_LOG):
+    """Read the `country,mad` rows written by `main.py --all` into a {country: mad} dict."""
+    if not os.path.exists(mad_log) or os.path.getsize(mad_log) == 0:
+        raise FileNotFoundError(
+            f"'{mad_log}' not found or empty. Run `python main.py --all` first "
+            "to compute MAD for every country."
+        )
+
+    mad_by_country = {}
+    with open(mad_log, "r", encoding="utf-8") as file:
         for line in file:
-            countries.append(line.split(',')[0])
-            mad.append(float(line.split(',')[1].strip()))
+            country, mad = line.strip().split(",")
+            mad_by_country[NAME_ALIASES.get(country, country)] = float(mad)
+    return mad_by_country
 
-check_and_generate_mad()
 
-# Normalizar os valores de 'mad'
-mad = np.array(list(map(lambda x: x * 100, mad))) # Multiplicar por 100 para facilitar a visualização
-min_mad = mad.min()
-max_mad = mad.max()
-normalized_mad = (mad - min_mad) / (max_mad - min_mad)
+def build_choropleth(mad_by_country):
+    """
+    Classify every country into one of Nigrini's four MAD conformity
+    categories -- the same categories and colors used on every country's own
+    chart -- rather than a continuous gradient with no interpretable
+    threshold. Countries never tested (no data, not "zero deviation") get a
+    hatched neutral fill via a dedicated legend entry, never a data color.
+    """
+    style.apply()
+    world = geopandas.read_file(SHAPEFILE)
+    world = world[world["ADMIN"] != "Antarctica"].to_crs(EQUAL_EARTH)
 
-# Obter o mapa de cores 'viridis'
-cmap = plt.get_cmap('magma')
-quantity = 0
-for i, country in enumerate(countries):
-    if country in world['ADMIN'].values:
-        quantity += 1
-        color = cmap(normalized_mad[i])
-        country_shape = world[world['ADMIN'] == country]
-        country_shape.plot(ax=ax, color=color)
-        
-        # Adicionar rótulo com o valor de MAD
-        representative_point = country_shape.geometry.representative_point()
-               # Adiciona a sombra
-        # Texto principal
-        central_america_countries = [
-    'Belize', 'Costa Rica', 'El Salvador', 'Guatemala', 'Honduras', 'Nicaragua', 'Panama'
-]   
-        if country not in central_america_countries:
-          plt.text(representative_point.x.values[0], representative_point.y.values[0], f'{mad[i]:.1f}', 
-                 fontsize=12, color='white', ha='center', va='center', fontweight='bold')
+    world["mad"] = world["ADMIN"].map(mad_by_country)
+    world["area"] = world.geometry.area
+    tested = world["mad"].notna()
+    world.loc[tested, "conformity"] = world.loc[tested, "mad"].apply(tester.mad_conformity_category)
 
-            
-    else:
-        print(f"País não encontrado: {country}")
+    matched = set(world.loc[tested, "ADMIN"])
+    missing = sorted(set(mad_by_country) - matched)
+    if missing:
+        print(f"{len(missing)} countries not found in the shapefile, skipped: {', '.join(missing)}")
 
-sm = ScalarMappable(cmap=cmap, norm=plt.Normalize(vmin=min_mad, vmax=max_mad))
+    fig, ax = plt.subplots(figsize=(14, 7.6), layout="constrained")
 
-# Ajusta o layout para dar espaço à barra de cores na parte inferior
-# plt.gcf().subplots_adjust(bottom=0.01)
-cbar = plt.colorbar(sm, ax=ax, orientation='vertical', fraction=0.05, pad=0.05)
-cbar.set_label('\nDistribuição de MAD')
+    world.loc[~tested].plot(
+        ax=ax, color="#f4f4f5", edgecolor="white", linewidth=0.4, hatch="///", zorder=1,
+    )
+    for category in style.CONFORMITY_ORDER:
+        subset = world.loc[world["conformity"] == category]
+        if len(subset):
+            subset.plot(ax=ax, color=style.CONFORMITY_COLORS[category], edgecolor="white", linewidth=0.4, zorder=2)
 
-#make americas the center of map
-ax.set_xlim(-170, -40)
-ax.set_ylim(-60, 80)
-plt.show()
+    # Label only the physically largest countries -- the map's job is the spatial
+    # pattern (where), not exact per-country reading (how much, precisely; that's
+    # what the ranking chart is for). Labeling every tested country crowds small,
+    # densely packed regions (the Balkans, Central America, the Caribbean).
+    largest_tested = world.loc[tested].nlargest(16, "area")
+    for _, row in largest_tested.iterrows():
+        point = row.geometry.representative_point()
+        ax.text(
+            point.x, point.y, f"{row['mad']:.3f}", fontsize=6.5, color="white",
+            ha="center", va="center", fontweight="bold", zorder=3,
+        )
+
+    handles = [Patch(facecolor=c, edgecolor="white", label=cat) for cat, c in style.CONFORMITY_COLORS.items()]
+    handles.append(Patch(facecolor="#f4f4f5", edgecolor="0.6", hatch="///", label="Not tested"))
+    ax.legend(
+        handles=handles, loc="lower left", fontsize=9, frameon=False,
+        title="Conformity (MAD)", title_fontsize=9.5,
+    )
+
+    ax.set_title("Newcomb-Benford Law conformity of COVID-19 death reporting, by country")
+    ax.set_axis_off()
+    return fig
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--mad-log", default=MAD_LOG, help="Path to the country,mad log file.")
+    parser.add_argument("--out", default="results/world_map", help="Output path, without extension.")
+    parser.add_argument("--fmt", default="svg", choices=["svg", "png"])
+    args = parser.parse_args()
+
+    mad_by_country = load_mad_values(args.mad_log)
+    fig = build_choropleth(mad_by_country)
+    directory, name = os.path.split(args.out)
+    path = plotter.save_figure(fig, name, directory=directory or ".", fmt=args.fmt)
+    print(f"Saved {path}")
+
+
+if __name__ == "__main__":
+    main()

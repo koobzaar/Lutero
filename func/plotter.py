@@ -1,155 +1,203 @@
-import matplotlib.pyplot as plt
+"""Rendering of Benford's Law results: distribution, deviation, comparison, and ranking."""
+
+import math
 import os
-import re
 import string
-import func.tester
+from dataclasses import dataclass
+
+import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.patches import Patch
 
 import func.benford as benford
+import func.style as style
+import func.tester as tester
 
-from collections import Counter
 
-def plot_data(digits, frequencies, expected_values, country_name, tolerance_area, sizeAmostra):
+@dataclass
+class BenfordResult:
+    country: str
+    frequencies: "np.ndarray"
+    mad: float
+    conformity: str
+    sample_size: int
+
+
+def compute_benford_result(country_name, death_variance):
     """
-    Plot the Benford's Law distribution.
-
-    Args:
-        digits (list): The digits.
-        frequencies (list): The frequencies.
-        expected_values (list): The expected values.
-        country_name (str): The country name.
-
-    Returns:
-        None
+    Compute the first-digit distribution and NBL conformity stats for a
+    country's death-variation series. Returns None when the sample doesn't
+    contain every leading digit, matching the original tool's behaviour of
+    silently skipping countries too sparse to test.
     """
-    lowerTolerance, higherTolerance = tolerance_area
-    mad = func.tester.calculate_MAD(frequencies)
-    
-    if not os.path.exists('results'):
-        os.makedirs('results')
-    with open('results/mad.txt', 'a') as file:
-        file.write(f"{country_name},{mad}\n")
+    frequencies = benford.digit_frequencies(death_variance)
+    if frequencies is None:
+        return None
 
-    if(higherTolerance is not None):
-        plt.plot(digits, higherTolerance, label='Tolerância Superior',color="#8577ff", ls='dotted', alpha=0.5)
-        plt.scatter(digits, higherTolerance, color='#8577ff', marker='x', s=10, linewidths=1)
+    sample_size = int(benford.first_significant_digits(death_variance).size)
+    mad = tester.mean_absolute_deviation(frequencies)
+    category = tester.mad_conformity_category(mad)
+    return BenfordResult(country_name, frequencies, mad, category, sample_size)
 
-    print (frequencies)
-    plt.plot(digits, frequencies, label=country_name, color='#ff8577', alpha=0.9)
-    plt.scatter(digits, frequencies, color='red', marker='x', s=10, linewidths=1)
 
-    plt.plot(digits, expected_values, label='Benford', color='grey', ls='--')
-    plt.scatter(digits, expected_values, color='grey', marker='x', s=10, linewidths=1)
+def _draw_distribution_panel(ax, result):
+    """Observed frequency bars vs. the expected Benford curve and its tolerance interval."""
+    lower, upper = tester.tolerance_bounds(result.sample_size)
 
-    if(lowerTolerance is not None):
-        plt.plot(digits, lowerTolerance, label='Tolerância Inferior', color="#01a833", ls='dotted', alpha=0.5)
-        plt.scatter(digits, lowerTolerance, color='#01a833', marker='x', s=10, linewidths=1)
-    
-    for i, digit in enumerate(digits):
-        plt.vlines(x=digit, ymin=lowerTolerance[i], ymax=higherTolerance[i], colors='black', linestyles='solid', linewidth=0.5)
-    
-    plt.xlabel('Primeiro Dígito')
-    plt.ylabel('Frequência')
-    plt.title(f'MAD: {mad:.4f} Tamanho da Amostra: {sizeAmostra}')
-    plt.xticks(digits)
-    valor_maximo = max(frequencies)
-    ticks = np.arange(0, valor_maximo + 0.05, 0.05)
-    plt.yticks(ticks)
-    plt.grid(axis='y')
+    ax.fill_between(benford.DIGITS, lower, upper, color=style.BAND, alpha=0.12, zorder=1)
+    ax.bar(benford.DIGITS, result.frequencies, color=style.OBSERVED, width=0.55, zorder=3)
+    ax.plot(
+        benford.DIGITS, benford.EXPECTED_FREQUENCIES, color=style.EXPECTED,
+        marker="o", markersize=4, lw=1.6, ls="--", zorder=4,
+    )
 
-    ax = plt.subplot(111)
-    box = ax.get_position()
-    ax.set_position([box.x0, box.y0 + box.height * 0.1,
-                 box.width, box.height * 0.9])
-    ncol = 3 if len(country_name) > 4 else 5
-    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.11), ncol=ncol, frameon=False)
+    ax.set_xticks(benford.DIGITS)
+    ax.set_ylabel("Frequency")
+    style.percent_axis(ax)
+    ax.set_axisbelow(True)
+    ax.grid(axis="y", zorder=0)
+    ax.set_title(result.country)
+    style.conformity_badge(ax, result.mad, result.conformity, result.sample_size)
 
-def sanitize_filename(filename):
+
+def _draw_deviation_panel(ax, result):
     """
-    Sanitize the filename by removing invalid characters.
-
-    Args:
-        filename (str): The filename.
-
-    Returns:
-        str: The sanitized filename.
+    Observed-minus-expected deviation per digit (percentage points), with the
+    95% tolerance interval re-centered on zero so bars that poke outside it
+    are visually -- not just chromatically -- flagged as out of tolerance.
     """
+    lower, upper = tester.tolerance_bounds(result.sample_size)
+    expected = benford.EXPECTED_FREQUENCIES
+    deviation = (np.asarray(result.frequencies) - expected) * 100
+    lower_dev = (lower - expected) * 100
+    upper_dev = (upper - expected) * 100
+
+    ax.fill_between(benford.DIGITS, lower_dev, upper_dev, color=style.BAND, alpha=0.12, zorder=1)
+    ax.axhline(0, color=style.MUTED, lw=0.9, zorder=2)
+
+    colors = [
+        style.OBSERVED if lo <= d <= hi else style.CONFORMITY_COLORS["Nonconformity"]
+        for d, lo, hi in zip(deviation, lower_dev, upper_dev)
+    ]
+    ax.bar(benford.DIGITS, deviation, color=colors, width=0.55, zorder=3)
+
+    ax.set_xticks(benford.DIGITS)
+    ax.set_xlabel("Leading digit")
+    ax.set_ylabel("Deviation (pp)")
+    ax.set_axisbelow(True)
+    ax.grid(axis="y", zorder=0)
+
+
+def _distribution_legend_handles():
+    return [
+        Patch(facecolor=style.OBSERVED, label="Observed"),
+        plt.Line2D([0], [0], color=style.EXPECTED, ls="--", marker="o", markersize=4, label="Benford's Law"),
+        Patch(facecolor=style.BAND, alpha=0.25, label="95% tolerance interval (Z-test, Eq. 2-3)"),
+    ]
+
+
+def plot_single_country_figure(result):
+    """
+    Standalone two-panel figure for one country: the distribution comparison
+    on top, and the signed deviation from Benford's Law (with the same
+    tolerance interval re-centered on zero) below it -- so the reader can
+    check both the overall shape and exactly where and how far it strays.
+    """
+    fig, (ax_dist, ax_dev) = plt.subplots(
+        2, 1, figsize=(7, 5.6), height_ratios=[3, 1.3], sharex=True, layout="constrained",
+    )
+    _draw_distribution_panel(ax_dist, result)
+    ax_dist.tick_params(labelbottom=False)
+    _draw_deviation_panel(ax_dev, result)
+
+    handles = _distribution_legend_handles() + [
+        Patch(facecolor=style.CONFORMITY_COLORS["Nonconformity"], label="Digit outside tolerance"),
+    ]
+    fig.legend(handles=handles, loc="outside lower center", ncol=2, fontsize=8.5)
+    return fig
+
+
+def plot_comparison_grid(results, ncols=3):
+    """Small-multiples grid: one distribution panel per country, shared y-axis."""
+    n = len(results)
+    ncols = min(ncols, n)
+    nrows = math.ceil(n / ncols)
+
+    fig, axes = plt.subplots(
+        nrows, ncols, figsize=(4.3 * ncols, 3.6 * nrows), sharey=True, squeeze=False,
+        layout="constrained",
+    )
+    flat_axes = axes.flatten()
+
+    for ax, result in zip(flat_axes, results):
+        _draw_distribution_panel(ax, result)
+
+    for row in axes:
+        for ax in row[1:]:
+            ax.set_ylabel("")
+
+    for ax in flat_axes[n:]:
+        ax.axis("off")
+
+    fig.legend(handles=_distribution_legend_handles(), loc="outside lower center", ncol=3, fontsize=9)
+    return fig
+
+
+def plot_ranking(country_mads, top_n=15):
+    """
+    Horizontal dot plot of the most- and least-conforming countries by MAD,
+    with Nigrini's conformity zones shaded as vertical reference bands and
+    each dot colored and directly labeled by its own category -- a ranked
+    "who's on top" view, rather than a bare sorted list.
+    """
+    ordered = sorted(country_mads, key=lambda cm: cm[1])
+    best, worst = ordered[:top_n], ordered[-top_n:]
+    rows = best + [("", None)] + worst
+
+    y = np.arange(len(rows))
+    fig, ax = plt.subplots(figsize=(7.5, 0.3 * len(rows) + 1), layout="constrained")
+
+    thresholds = [0.0] + [t for t, _ in tester.MAD_CONFORMITY_THRESHOLDS[:-1]]
+    xmax = max(m for _, m in country_mads) * 1.08
+    bounds = thresholds + [xmax]
+    for (lo, hi), category in zip(zip(bounds, bounds[1:]), style.CONFORMITY_ORDER):
+        ax.axvspan(lo, hi, color=style.CONFORMITY_COLORS[category], alpha=0.06, zorder=0)
+
+    for yi, (country, mad) in zip(y, rows):
+        if mad is None:
+            continue
+        color = style.CONFORMITY_COLORS[tester.mad_conformity_category(mad)]
+        ax.hlines(yi, 0, mad, color=color, lw=1, alpha=0.45, zorder=2)
+        ax.scatter([mad], [yi], color=color, s=42, zorder=3, edgecolor="white", linewidth=0.7)
+        ax.annotate(
+            f"{mad:.4f}", xy=(mad, yi), xytext=(6, 0), textcoords="offset points",
+            va="center", fontsize=8.5, color=style.INK,
+        )
+
+    ax.set_yticks(y)
+    ax.set_yticklabels([c for c, _ in rows])
+    ax.invert_yaxis()
+    ax.set_xlim(0, xmax)
+    ax.set_xlabel("Mean Absolute Deviation")
+    ax.spines[["left"]].set_visible(False)
+    ax.tick_params(left=False)
+    ax.grid(axis="x", alpha=0.3)
+    ax.set_axisbelow(True)
+
+    handles = [Patch(facecolor=c, label=cat) for cat, c in style.CONFORMITY_COLORS.items()]
+    ax.legend(handles=handles, loc="upper right", fontsize=8, title="Conformity", title_fontsize=8.5)
+    return fig
+
+
+def sanitize_filename(name):
     valid_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
-    sanitized_filename = ''.join(c for c in filename if c in valid_chars)
-    sanitized_filename = sanitized_filename.replace(' ','_') # I don't like spaces in filenames.
-    return sanitized_filename
+    return "".join(c for c in name if c in valid_chars).replace(" ", "_")
 
-def save_plot(country_name):
-    """
-    Save the plot as a PNG file.
 
-    Args:
-        country_name (str): The country name.
-
-    Returns:
-        None
-    """
-    if not os.path.exists('results'):
-        os.makedirs('results')
-
-    # Sanitize the country name to be a valid filename
-    sanitized_country_name = sanitize_filename(country_name)
-
-    plt.savefig(f'results/{sanitized_country_name}_benford_law.png')
-    plt.clf()
-
-def plot_benford_law(country_name, death_variance):
-    """
-    Plots the Benford's Law distribution for a given country and saves it as a PNG file.
-
-    Args:
-        country_name (str): The country name.
-        death_variance (list): The death variance data.
-
-    Returns:
-        None
-    """
-
-    # Generating the tolerance area
-    upper, lower = func.tester.calculate_area_of_tolerance(death_variance)
-    benford_data = benford.caculate_first_digit_distribution(death_variance)
-
-    if benford_data is None:
-        return
-
-    digits = list(range(1, 10))
-    frequencies = benford_data
-    expected_values = [0.301, 0.176, 0.125, 0.097, 0.079, 0.067, 0.058, 0.051, 0.046]
-    plot_data(digits, frequencies, expected_values, country_name, tolerance_area=(upper, lower), sizeAmostra=len(death_variance))
-    save_plot(country_name)
-
-    return benford_data
-
-def plot_multiple_data(country_name, death_variance, color):
-    """
-    Plots the Benford's Law distribution for multiple countries and saves them as PNG files.
-
-    Args:
-        countries (list): The countries.
-        death_variances (list): The death variance data.
-
-    Returns:
-        None
-    """
-    benford_data = benford.caculate_first_digit_distribution(death_variance)
-    if benford_data is None:
-        return
-    frequencies = benford_data
-    print (frequencies)
-    digits = list(range(1, 10))
-    expected_values = [0.301, 0.176, 0.125, 0.097, 0.079, 0.067, 0.058, 0.051, 0.046]
-    plot_multiple_data_in_graph(digits, frequencies, expected_values, country_name, color)
-    
-def plot_multiple_data_in_graph(digits, frequencies, expected_values, country_name, current_color):
-   
-    plt.plot(digits, frequencies, label=country_name, color=current_color, alpha=0.8)
-    plt.scatter(digits, frequencies, color=current_color, marker='x', s=10, linewidths=1)
-    plt.xlabel('Primeiro Dígito')
-    plt.ylabel('Frequência')
-    
-    
+def save_figure(fig, name, directory="results", fmt="svg"):
+    """Save a figure under `directory`, creating it if needed. Vector (SVG) by
+    default so charts embedded in the README stay crisp at any zoom."""
+    os.makedirs(directory, exist_ok=True)
+    path = os.path.join(directory, f"{sanitize_filename(name)}.{fmt}")
+    fig.savefig(path, bbox_inches="tight")
+    return path
