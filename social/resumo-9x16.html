@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Lutero — resumo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f6f2ea;
+    --ink: #1f2430;
+    --muted: #5d6170;
+    --line: #ddd6c8;
+    --card: #fffdf8;
+    --close: #009e73;
+    --ok: #0072b2;
+    --marg: #e69f00;
+    --bad: #d55e00;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1920px; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: Inter, system-ui, sans-serif;
+    padding: 56px 64px 44px;
+    display: flex; flex-direction: column; gap: 26px;
+    overflow: hidden;
+  }
+  .kicker {
+    font: 700 19px/1 Inter; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--bad); display: flex; gap: 14px; align-items: center;
+  }
+  .kicker span.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+  h1 {
+    font: 700 66px/1.02 Fraunces, serif; letter-spacing: -.02em; margin-top: 16px;
+  }
+  h1 em { font-style: normal; color: var(--bad); }
+  .lede { font-size: 24px; line-height: 1.4; color: #343846; margin-top: 16px; }
+  .lede b { color: var(--ink); }
+
+  h2 {
+    font: 800 17px/1 Inter; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--muted); display: flex; align-items: center; gap: 14px; margin-bottom: 14px;
+  }
+  h2::after { content: ""; flex: 1; height: 2px; background: var(--line); }
+  h2 .n { font-family: "JetBrains Mono"; color: var(--ink); }
+
+  .card { background: var(--card); border: 2px solid var(--line); border-radius: 22px; padding: 24px 28px; }
+
+  /* Math */
+  .math { display: grid; grid-template-columns: 1fr 400px; gap: 24px; align-items: center; }
+  .math p { font-size: 21px; line-height: 1.4; color: #343846; }
+  .math p + p { margin-top: 0; }
+  .formula {
+    font: 500 30px/1 "JetBrains Mono", monospace; margin: 14px 0 12px; white-space: nowrap;
+    padding: 14px 16px; background: var(--paper); border-radius: 14px; text-align: center;
+  }
+  .formula sub { font-size: 20px; }
+  .chart text { font-family: Inter; }
+
+  /* MAD */
+  .mad { display: flex; align-items: center; gap: 22px; margin-top: 18px; padding-top: 16px; border-top: 2px dashed var(--line); }
+  .mad .what { font-size: 19px; line-height: 1.38; color: #343846; flex: 1; }
+  .scale { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; width: 400px; }
+  .scale div { border-radius: 8px; padding: 9px 8px 8px; color: #fff; font: 700 15px/1.15 Inter; }
+  .scale div small { display: block; font: 500 13px/1.2 "JetBrains Mono"; opacity: .9; margin-top: 3px; }
+
+  /* Results */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .stat { background: var(--card); border: 2px solid var(--line); border-radius: 18px; padding: 14px 20px; }
+  .stat .big { font: 700 46px/1 Fraunces, serif; letter-spacing: -.02em; }
+  .stat .lbl { font-size: 16px; line-height: 1.3; color: var(--muted); margin-top: 6px; }
+  .map {
+    position: relative; height: 420px; overflow: hidden; margin-top: 14px;
+    background: var(--card); border: 2px solid var(--line); border-radius: 22px;
+  }
+  .map img { position: absolute; width: 1185px; left: -186px; top: -58px; }
+  .legend { position: absolute; left: 22px; bottom: 20px; display: flex; flex-direction: column; gap: 6px; font: 600 14px Inter; color: var(--ink); }
+  .legend i { display: inline-block; width: 16px; height: 16px; border-radius: 4px; vertical-align: -3px; margin-right: 8px; }
+
+  .brasil { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+  .src { border-radius: 16px; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--card); border: 2px solid var(--line); }
+  .src .name { font: 700 18px/1.2 Inter; }
+  .src .name small { display: block; font: 500 14px Inter; color: var(--muted); }
+  .src .row { display: flex; align-items: center; gap: 12px; }
+  .src .val { font: 700 24px "JetBrains Mono"; }
+  .tag { font: 700 14px Inter; letter-spacing: .04em; text-transform: uppercase; color: #fff; padding: 6px 10px; border-radius: 999px; }
+
+  .note { font-size: 18px; line-height: 1.35; color: var(--muted); margin-top: 10px; }
+  .note b { color: var(--ink); }
+
+  /* Impact */
+  .impact { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .impact div { font-size: 18px; line-height: 1.36; color: #343846; }
+  .impact b { display: block; font: 700 20px/1.2 Inter; color: var(--ink); margin-bottom: 6px; }
+  .warn {
+    margin-top: 14px; font-size: 18px; line-height: 1.4; color: var(--ink);
+    background: #fdebd9; border-left: 6px solid var(--bad); border-radius: 10px; padding: 12px 18px;
+  }
+
+  footer { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; border-top: 2px solid var(--ink); padding-top: 14px; }
+  footer .who { font-size: 15.5px; line-height: 1.45; color: var(--muted); }
+  footer .who b { color: var(--ink); }
+  footer .repo { font: 700 17px "JetBrains Mono"; text-align: right; line-height: 1.45; }
+  footer .repo span { display: block; font: 600 14px Inter; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="kicker">Ciência pública <span class="dot"></span> Fatec <span class="dot"></span> Bolsa CNPq · PIBITI</div>
+  <h1>Dá pra confiar nos números <em>de mortes por COVID-19?</em></h1>
+  <p class="lede">Testamos os óbitos diários de <b>146 países</b> com uma lei matemática usada por <b>auditores para detectar fraudes</b>.</p>
+</header>
+
+<section>
+  <h2><span class="n">01</span> A matemática</h2>
+  <div class="card">
+    <div class="math">
+      <div>
+        <p>Em números que surgem naturalmente (populações, contas de luz, mortes diárias), o <b>primeiro dígito não é aleatório</b>: cerca de 30% começam com 1 e menos de 5% com 9. É a <b>Lei de Newcomb-Benford</b>.</p>
+        <div class="formula">P(d) = log<sub>10</sub>(1 + 1/d)</div>
+        <p>Números inventados ou manipulados tendem a fugir dessa curva.</p>
+      </div>
+      <svg class="chart" viewBox="0 0 470 300" width="400" height="255" aria-label="Frequência esperada do primeiro dígito pela Lei de Benford">
+        <g id="bars"></g>
+        <line x1="10" x2="460" y1="262" y2="262" stroke="#1f2430" stroke-width="2"/>
+        <text x="460" y="24" text-anchor="end" font-size="16" fill="#5d6170" font-weight="600">frequência do 1º dígito</text>
+      </svg>
+    </div>
+    <div class="mad">
+      <p class="what"><b>Como medimos:</b> o <b>MAD</b> (desvio absoluto médio) é a distância média entre o que o país reportou e o que a lei prevê. Quanto menor, mais “natural”.</p>
+      <div class="scale">
+        <div style="background:var(--close)">Próximo<small>&lt; 0,006</small></div>
+        <div style="background:var(--ok)">Aceitável<small>&lt; 0,012</small></div>
+        <div style="background:var(--marg)">Marginal<small>&lt; 0,015</small></div>
+        <div style="background:var(--bad)">Fora<small>≥ 0,015</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">02</span> O que descobrimos</h2>
+  <div class="stats">
+    <div class="stat"><div class="big">146</div><div class="lbl">países analisados (dados da Johns Hopkins)</div></div>
+    <div class="stat"><div class="big" style="color:var(--bad)">113</div><div class="lbl">fora do padrão esperado (77%)</div></div>
+    <div class="stat"><div class="big" style="color:var(--ok)">Japão</div><div class="lbl">melhor aderência entre as grandes séries (MAD 0,0078)</div></div>
+  </div>
+  <div class="map">
+    <img src="../assets/world_map.svg" alt="Mapa-múndi colorido pela conformidade de cada país com a Lei de Benford">
+    <div class="legend">
+      <span><i style="background:var(--close)"></i>Próximo</span>
+      <span><i style="background:var(--ok)"></i>Aceitável</span>
+      <span><i style="background:var(--marg)"></i>Marginal</span>
+      <span><i style="background:var(--bad)"></i>Fora do padrão</span>
+    </div>
+  </div>
+  <div class="brasil">
+    <div class="src">
+      <div class="name">Ministério da Saúde<small>Brasil · governo · 2020–2024</small></div>
+      <div class="row"><span class="val">0,0129</span><span class="tag" style="background:var(--marg)">Marginal</span></div>
+    </div>
+    <div class="src">
+      <div class="name">Consórcio de imprensa<small>Brasil · imprensa · 2020–2023</small></div>
+      <div class="row"><span class="val">0,0170</span><span class="tag" style="background:var(--bad)">Fora</span></div>
+    </div>
+  </div>
+  <p class="note">Mesmo país, duas fontes, dois resultados: <b>a forma de coletar o dado muda sua qualidade</b>.</p>
+</section>
+
+<section>
+  <h2><span class="n">03</span> Por que importa</h2>
+  <div class="impact">
+    <div><b>Decisões de saúde</b>Leitos, vacinas e lockdowns dependem de dados confiáveis.</div>
+    <div><b>Custo quase zero</b>Só precisa dos números públicos para apontar onde auditar.</div>
+    <div><b>Próximas crises</b>O método vale para qualquer epidemia futura.</div>
+  </div>
+  <p class="warn"><b>Atenção:</b> desvio não é prova de fraude. Atrasos de notificação e séries curtas também afastam os dados da curva. É um <b>sinal de onde olhar com mais cuidado</b>.</p>
+</section>
+
+<footer>
+  <div class="who">
+    <b>Bruno Bezerra Trigueiro</b> · Fatec Baixada Santista Rubens Lara<br>
+    Orientação: Prof. Dr. José Augusto T. Pazetti<br>
+    Coorientação: Prof. Dr. Fernando G. Tavares (in memoriam)
+  </div>
+  <div class="repo"><span>Código aberto</span>github.com/koobzaar/lutero</div>
+</footer>
+
+<script>
+  const g = document.getElementById('bars');
+  const ns = 'http://www.w3.org/2000/svg';
+  const bw = 40, gap = 10, x0 = 14, base = 262, scale = 700;
+  for (let d = 1; d <= 9; d++) {
+    const p = Math.log10(1 + 1 / d), h = p * scale, x = x0 + (d - 1) * (bw + gap);
+    const r = document.createElementNS(ns, 'rect');
+    Object.entries({ x, y: base - h, width: bw, height: h, rx: 6, fill: d === 1 ? '#d55e00' : '#1f2430', opacity: d === 1 ? 1 : 0.82 })
+      .forEach(([k, v]) => r.setAttribute(k, v));
+    g.appendChild(r);
+    const t = document.createElementNS(ns, 'text');
+    Object.entries({ x: x + bw / 2, y: base - h - 9, 'text-anchor': 'middle', 'font-size': 14, 'font-weight': 700, fill: '#1f2430' })
+      .forEach(([k, v]) => t.setAttribute(k, v));
+    t.textContent = (p * 100).toFixed(1).replace('.', ',') + '%';
+    g.appendChild(t);
+    const l = t.cloneNode();
+    l.setAttribute('y', base + 22); l.setAttribute('font-size', 17); l.setAttribute('fill', '#5d6170');
+    l.textContent = d;
+    g.appendChild(l);
+  }
+</script>
+</body>
+</html>
