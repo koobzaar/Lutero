@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <title>Lutero — pôster</title>
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});document.body.dataset.ready=1"></script>
 <style>
   :root {
     --navy: #13294b;
@@ -58,16 +61,25 @@
   .cap b { color: var(--ink); }
   .sw { display: inline-block; width: 11px; height: 11px; border-radius: 2px; vertical-align: -1px; margin-right: 4px; }
 
+  .math3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .math3 h3 { font: 700 15.5px/1.2 "Source Sans 3"; color: var(--navy); margin-bottom: 5px; border-bottom: 2px solid var(--rule); padding-bottom: 4px; }
+  .math3 p { font-size: 14.6px; line-height: 1.4; }
+  .katex { font-size: 1.05em; }
+  .katex-display { margin: 6px 0; padding: 6px 8px; background: var(--tint); border-left: 4px solid var(--navy2); position: relative; }
+  .katex-display > .katex { font-size: 1.0em; }
+  .eqn { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 12.5px; color: var(--muted); }
+  .ex { margin-top: 12px; display: grid; grid-template-columns: 150px 1fr; gap: 14px; align-items: center; background: #fff6ee; border: 1px solid #f1c9a6; border-left: 5px solid var(--accent); padding: 8px 14px; font-size: 14.6px; line-height: 1.4; }
+  .ex .t { font: 800 13px/1.25 "Source Sans 3"; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
   figure { margin: 0; }
   .fig { border: 1px solid var(--rule); background: #fff; overflow: hidden; position: relative; }
   .fig img { display: block; width: 100%; }
-  .mapbox { height: 372px; }
-  .mapbox img { position: absolute; width: 1010px; left: -162px; top: -50px; }
+  .mapbox { height: 296px; }
+  .mapbox img { position: absolute; width: 820px; left: -128px; top: -40px; }
   .maplegend { position: absolute; left: 8px; bottom: 8px; font-size: 12px; line-height: 1.35; background: rgba(255,255,255,.85); padding: 4px 6px; }
   .chartbox { height: 226px; }
   .chartbox img { position: absolute; width: 100%; left: 0; top: 0; }
 
-  .key { display: grid; grid-template-rows: repeat(4, 1fr); gap: 8px; height: 372px; }
+  .key { display: grid; grid-template-rows: repeat(3, 1fr); gap: 8px; height: 296px; }
   .key > div { border: 1px solid var(--rule); border-left: 5px solid var(--navy2); padding: 7px 10px; }
   .key .num { font: 700 24px/1 "Source Serif 4", serif; color: var(--navy); }
   .key .lbl { font-size: 13.5px; color: var(--muted); line-height: 1.3; margin-top: 2px; }
@@ -91,31 +103,47 @@
 <main>
   <div class="row c2">
     <section>
-      <h2>1. Introdução</h2>
-      <p>Durante a pandemia, governos e imprensa divulgaram diariamente o número de mortes. Esses dados guiaram a abertura de leitos, a compra de vacinas e as decisões de isolamento. Mas cada país coletou e publicou seus números de um jeito diferente, sob pressões distintas.</p>
-      <p>A <b>Lei de Newcomb-Benford (LNB)</b> descreve um padrão curioso: em números que surgem naturalmente, o primeiro dígito <b>não é aleatório</b>. Cerca de 30% começam com 1 e menos de 5% com 9. Por isso ela é usada há décadas por <b>auditores fiscais para detectar fraudes</b> contábeis: números inventados raramente seguem essa curva.</p>
-      <h2 style="margin-top:12px">2. Objetivo</h2>
-      <p>Verificar se os dados diários de óbitos por COVID-19 de 146 países seguem a LNB e comparar <b>duas fontes brasileiras</b> (Ministério da Saúde e Consórcio de Veículos de Imprensa) para entender como a forma de coleta afeta a consistência dos dados.</p>
+      <h2>1. Introdução e objetivo</h2>
+      <p>Os números diários de mortes por COVID-19 guiaram leitos, vacinas e isolamento, mas cada país os coletou de um jeito. A <b>Lei de Newcomb-Benford (LNB)</b>, usada por <b>auditores para detectar fraudes</b>, prevê como os primeiros dígitos de dados reais se distribuem. <b>Objetivo:</b> testar se os óbitos diários de 146 países seguem essa lei e comparar duas fontes brasileiras.</p>
     </section>
-
     <section>
-      <h2>3. Metodologia</h2>
-      <p><b>Dados:</b> Johns Hopkins University (195 países, 2020–2023), Ministério da Saúde do Brasil (1.143 dias), Consórcio de Veículos de Imprensa (1.043 dias) e CDC/EUA (234 semanas). A China foi excluída após um salto inexplicado de ~31 mil para 3,52 milhões de casos em uma semana (dez/2022).</p>
-      <p>De cada variação diária de óbitos extraiu-se o <b>primeiro dígito</b>, comparado à frequência esperada:</p>
-      <div class="eq"><span>P(d) = log<sub>10</sub>(1 + <span class="frac"><span>1</span><span>d</span></span>), &nbsp;d = 1,…,9</span><span class="n">(1)</span></div>
-      <table>
-        <tr><th>Dígito</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th></tr>
-        <tr><td>Esperado</td><td>30,1%</td><td>17,6%</td><td>12,5%</td><td>9,7%</td><td>7,9%</td><td>6,7%</td><td>5,8%</td><td>5,1%</td><td>4,6%</td></tr>
-      </table>
-      <p style="margin-top:8px">A conformidade foi medida pelo <b>Desvio Absoluto Médio</b> (MAD), a distância média entre o observado e o esperado, e por limites de tolerância de 95% para cada dígito (teste Z, z = 1,96):</p>
-      <div class="eq"><span>MAD = <span class="frac"><span>1</span><span>9</span></span> <span class="sig"><small>9</small>Σ<small>d=1</small></span> | p(d) − P(d) |</span><span class="n">(2)</span></div>
-      <p class="cap">Classificação (Nigrini, 2012): <span class="sw" style="background:var(--close)"></span>Próxima &lt; 0,006 &nbsp; <span class="sw" style="background:var(--ok)"></span>Aceitável &lt; 0,012 &nbsp; <span class="sw" style="background:var(--marg)"></span>Marginal &lt; 0,015 &nbsp; <span class="sw" style="background:var(--bad)"></span>Não conforme ≥ 0,015</p>
+      <h2>2. Dados</h2>
+      <p>Johns Hopkins University (195 países, 2020–2023), Ministério da Saúde (1.143 dias), Consórcio de Veículos de Imprensa (1.043 dias) e CDC/EUA (234 semanas). Usou-se a variação diária \(x_t = O_t - O_{t-1}\) dos óbitos acumulados \(O_t\), descartando \(x_t = 0\). A China foi excluída por um salto de ~31 mil para 3,52 milhões de casos em uma semana.</p>
     </section>
   </div>
 
   <section>
+    <h2>3. Fundamentação matemática</h2>
+    <div class="math3">
+      <div>
+        <h3>3.1 Origem da lei</h3>
+        <p>Todo \(x \neq 0\) se escreve como \(|x| = S(x)\cdot 10^{k}\), com significando \(S \in [1,10)\) e \(k \in \mathbb{Z}\). O primeiro dígito é \(D_1 = \lfloor S(x) \rfloor\). Se os dados são <b>invariantes à escala</b> (mudar a unidade não altera a distribuição), a mantissa \(\log_{10} S\) é uniforme em \([0,1)\) (Hill, 1995). Logo:</p>
+        $$P(D_1 = d) = \int_{\log_{10} d}^{\log_{10}(d+1)} \! dt = \log_{10}\!\Big(1+\tfrac{1}{d}\Big)$$
+        <p>Isso dá 30,1% para \(d=1\) e só 4,6% para \(d=9\).</p>
+      </div>
+      <div>
+        <h3>3.2 Teste dígito a dígito</h3>
+        <p>Sob a LNB, a contagem do dígito \(d\) em \(n\) observações é binomial, \(N_d \sim \mathrm{Bin}(n, p_d)\), com \(p_d = \log_{10}(1+1/d)\). A proporção \(\hat p_d = N_d/n\) tem desvio-padrão:</p>
+        $$\sigma_d = \sqrt{\frac{p_d\,(1-p_d)}{n}}$$
+        <p>Os limites de tolerância de 95%, com correção de continuidade (Henselmann et al., 2012), são:</p>
+        $$p_d - \Big(1{,}96\,\sigma_d - \tfrac{1}{2n}\Big) \le \hat p_d \le p_d + \Big(1{,}96\,\sigma_d + \tfrac{1}{2n}\Big)$$
+      </div>
+      <div>
+        <h3>3.3 Conformidade global</h3>
+        <p>Para resumir os 9 dígitos em um único índice, usa-se o desvio absoluto médio:</p>
+        $$\mathrm{MAD} = \frac{1}{9}\sum_{d=1}^{9} \big|\hat p_d - p_d\big|$$
+        <p>Diferente do \(\chi^2\), cujo valor cresce com \(n\) e rejeita quase tudo em séries longas, o MAD <b>não depende do tamanho da amostra</b>, o que permite comparar países com séries de tamanhos diferentes (Nigrini, 2012). Faixas: <span class="sw" style="background:var(--close)"></span>&lt; 0,006 próxima · <span class="sw" style="background:var(--ok)"></span>&lt; 0,012 aceitável · <span class="sw" style="background:var(--marg)"></span>&lt; 0,015 marginal · <span class="sw" style="background:var(--bad)"></span>≥ 0,015 não conforme.</p>
+      </div>
+    </div>
+    <div class="ex">
+      <div class="t">Exemplo<br>resolvido</div>
+      <div>Consórcio de imprensa, \(n = 1043\), dígito 1: \(p_1 = 0{,}3010\), \(\sigma_1 = \sqrt{0{,}301 \cdot 0{,}699 / 1043} = 0{,}0142\). Limite superior: \(0{,}3010 + 1{,}96 \cdot 0{,}0142 + \tfrac{1}{2086} = 0{,}3293\). Observado: \(\hat p_1 = 0{,}333 > 0{,}3293\), então <b>o dígito 1 está fora da tolerância</b> (Fig. 3).</div>
+    </div>
+  </section>
+
+  <section>
     <h2>4. Resultados</h2>
-    <div class="row" style="grid-template-columns: 1fr 250px; gap: 16px;">
+    <div class="row" style="grid-template-columns: 1fr 290px; gap: 16px;">
       <figure>
         <div class="fig mapbox">
           <img src="../assets/world_map.svg" alt="">
@@ -124,9 +152,8 @@
         <figcaption class="cap"><b>Figura 1.</b> Conformidade dos óbitos diários com a LNB por país (MAD, dados JHU). Áreas hachuradas: dados insuficientes para o teste.</figcaption>
       </figure>
       <div class="key">
-        <div><div class="num">146</div><div class="lbl">países com dados suficientes para o teste</div></div>
+        <div><div class="num">146</div><div class="lbl">países testados · MAD mediano 0,024</div></div>
         <div><div class="num" style="color:var(--bad)">113 (77%)</div><div class="lbl">não conformes com a LNB</div></div>
-        <div><div class="num">0,024</div><div class="lbl">MAD mediano global (média 0,026)</div></div>
         <div><div class="num" style="color:var(--ok)">Japão</div><div class="lbl">melhor aderência entre as séries longas: MAD 0,0078 (n = 1.066)</div></div>
       </div>
     </div>
@@ -152,18 +179,19 @@
       <h2>5. Discussão e impacto</h2>
       <ul>
         <li><b>Mesmo país, fontes diferentes, resultados diferentes:</b> os dados do Ministério da Saúde aderem mais à LNB que os do consórcio de imprensa. O método de coleta afeta a qualidade do dado.</li>
-        <li><b>A frequência de notificação importa:</b> nos EUA, a série semanal do CDC (MAD 0,0159) é não conforme, enquanto a série diária da JHU fica em 0,0061.</li>
-        <li><b>Ferramenta barata e reproduzível:</b> precisa apenas de dados públicos para indicar <b>onde</b> auditar, e pode ser aplicada em epidemias futuras.</li>
+        <li><b>A frequência de notificação importa:</b> EUA semanal (CDC): MAD 0,0159; diário (JHU): 0,0061.</li>
+        <li><b>Ferramenta barata e reproduzível:</b> só dados públicos para indicar <b>onde</b> auditar, inclusive em epidemias futuras.</li>
       </ul>
     </section>
     <section>
       <h2>6. Conclusão</h2>
-      <div class="box">A maioria dos países não segue estritamente a LNB. <b>Desvio não é prova de fraude</b>: atrasos de notificação, amostras pequenas e revisões também afastam os dados da curva. A LNB funciona como um <b>sinal de alerta</b> que orienta investigações mais detalhadas sobre a qualidade dos dados de saúde pública.</div>
+      <div class="box">A maioria dos países não segue estritamente a LNB. <b>Desvio não é prova de fraude</b>: atrasos, amostras pequenas e revisões também afastam os dados da curva. A LNB é um <b>sinal de alerta</b> que orienta auditorias dos dados de saúde pública.</div>
       <h2 style="margin-top:12px">Referências</h2>
       <ol class="refs" style="padding-left:16px">
         <li>Newcomb, S. (1881). Note on the frequency of use of the different digits in natural numbers. <i>Am. J. Math.</i>, 4(1).</li>
         <li>Nigrini, M. J. (2012). <i>Benford's Law: Applications for Forensic Accounting, Auditing, and Fraud Detection</i>. Wiley.</li>
-        <li>Drake, P. D. &amp; Nigrini, M. J. (2000). Computer assisted analytical procedures using Benford's Law. <i>J. Account. Educ.</i>, 18(2).</li>
+        <li>Hill, T. P. (1995). A statistical derivation of the significant-digit law. <i>Stat. Sci.</i>, 10(4).</li>
+        <li>Henselmann, K., Scherr, E. &amp; Ditter, D. (2012). Applying Benford's Law to individual financial reports: an empirical investigation on the basis of SEC XBRL filings.</li>
         <li>Dong, E., Du, H. &amp; Gardner, L. (2020). An interactive web-based dashboard to track COVID-19 in real time. <i>Lancet Infect. Dis.</i>, 20(5).</li>
               </ol>
     </section>
