@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Lutero — pôster</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #13294b;
+    --navy2: #1d3a66;
+    --accent: #d55e00;
+    --ink: #1b1f27;
+    --muted: #555b66;
+    --rule: #c9d1dd;
+    --tint: #eef2f8;
+    --close: #009e73; --ok: #0072b2; --marg: #e69f00; --bad: #d55e00;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1920px; }
+  body {
+    background: #fff; color: var(--ink);
+    font: 400 16.3px/1.42 "Source Sans 3", sans-serif;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+
+  header { background: var(--navy); color: #fff; padding: 26px 40px 20px; border-bottom: 8px solid var(--accent); }
+  header h1 { font: 700 39px/1.12 "Source Serif 4", serif; letter-spacing: -.01em; }
+  header .authors { margin-top: 14px; font-size: 19px; font-weight: 600; }
+  header .authors sup { font-size: 12px; }
+  header .aff { margin-top: 4px; font-size: 14.5px; line-height: 1.4; color: #c8d3e6; }
+  header .aff sup { font-size: 10px; }
+
+  main { flex: 1; padding: 18px 36px 0; display: flex; flex-direction: column; gap: 14px; }
+  .row { display: grid; gap: 22px; }
+  .c2 { grid-template-columns: 1fr 1fr; }
+  .c3 { grid-template-columns: repeat(3, 1fr); }
+
+  h2 {
+    font: 800 15px/1 "Source Sans 3"; letter-spacing: .08em; text-transform: uppercase;
+    color: #fff; background: var(--navy2); padding: 7px 12px; border-radius: 4px; margin-bottom: 10px;
+  }
+  p + p { margin-top: 7px; }
+  ul { padding-left: 18px; } li + li { margin-top: 4px; }
+  b { font-weight: 700; }
+
+  .eq { background: var(--tint); border-left: 4px solid var(--navy2); padding: 7px 12px; margin: 8px 0; font-family: "Source Serif 4", serif; font-size: 17px; display: flex; justify-content: space-between; align-items: center; }
+  .eq .n { font-family: "Source Sans 3"; font-size: 13px; color: var(--muted); }
+  .frac { display: inline-flex; flex-direction: column; vertical-align: middle; text-align: center; font-size: 13px; line-height: 1.05; margin: 0 2px; }
+  .frac span:first-child { border-bottom: 1px solid currentColor; }
+
+  .sig { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: .9; font-size: 22px; margin: 0 3px; }
+  .sig small { font-size: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 6px; }
+  th, td { border-bottom: 1px solid var(--rule); padding: 3px 5px; text-align: center; }
+  th { background: var(--tint); font-weight: 700; }
+  td:first-child, th:first-child { text-align: left; }
+  .cap { font-size: 13px; color: var(--muted); margin-top: 4px; line-height: 1.35; }
+  .cap b { color: var(--ink); }
+  .sw { display: inline-block; width: 11px; height: 11px; border-radius: 2px; vertical-align: -1px; margin-right: 4px; }
+
+  figure { margin: 0; }
+  .fig { border: 1px solid var(--rule); background: #fff; overflow: hidden; position: relative; }
+  .fig img { display: block; width: 100%; }
+  .mapbox { height: 372px; }
+  .mapbox img { position: absolute; width: 1010px; left: -162px; top: -50px; }
+  .maplegend { position: absolute; left: 8px; bottom: 8px; font-size: 12px; line-height: 1.35; background: rgba(255,255,255,.85); padding: 4px 6px; }
+  .chartbox { height: 226px; }
+  .chartbox img { position: absolute; width: 100%; left: 0; top: 0; }
+
+  .key { display: grid; grid-template-rows: repeat(4, 1fr); gap: 8px; height: 372px; }
+  .key > div { border: 1px solid var(--rule); border-left: 5px solid var(--navy2); padding: 7px 10px; }
+  .key .num { font: 700 24px/1 "Source Serif 4", serif; color: var(--navy); }
+  .key .lbl { font-size: 13.5px; color: var(--muted); line-height: 1.3; margin-top: 2px; }
+
+  .box { background: var(--tint); padding: 10px 12px; border-radius: 4px; }
+  .refs { font-size: 12px; line-height: 1.35; color: var(--muted); }
+  .refs li + li { margin-top: 2px; }
+
+  footer { margin-top: auto; padding: 10px 36px; background: var(--tint); border-top: 3px solid var(--navy); display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+  footer b { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Dá pra confiar nos números oficiais de mortes por <span style="white-space:nowrap">COVID-19?</span> Uma análise de 146 países com a Lei de Benford</h1>
+  <div class="authors">Bruno Bezerra Trigueiro<sup>1</sup>, Fernando Gonzales Tavares<sup>2</sup> (in memoriam), José Augusto Theodosio Pazetti<sup>1</sup></div>
+  <div class="aff"><sup>1</sup>Faculdade de Tecnologia da Baixada Santista Rubens Lara (Fatec) &nbsp;·&nbsp; <sup>2</sup>Universidade Santa Cecília &nbsp;·&nbsp; Iniciação Tecnológica com bolsa CNPq – PIBITI</div>
+</header>
+
+<main>
+  <div class="row c2">
+    <section>
+      <h2>1. Introdução</h2>
+      <p>Durante a pandemia, governos e imprensa divulgaram diariamente o número de mortes. Esses dados guiaram a abertura de leitos, a compra de vacinas e as decisões de isolamento. Mas cada país coletou e publicou seus números de um jeito diferente, sob pressões distintas.</p>
+      <p>A <b>Lei de Newcomb-Benford (LNB)</b> descreve um padrão curioso: em números que surgem naturalmente, o primeiro dígito <b>não é aleatório</b>. Cerca de 30% começam com 1 e menos de 5% com 9. Por isso ela é usada há décadas por <b>auditores fiscais para detectar fraudes</b> contábeis: números inventados raramente seguem essa curva.</p>
+      <h2 style="margin-top:12px">2. Objetivo</h2>
+      <p>Verificar se os dados diários de óbitos por COVID-19 de 146 países seguem a LNB e comparar <b>duas fontes brasileiras</b> (Ministério da Saúde e Consórcio de Veículos de Imprensa) para entender como a forma de coleta afeta a consistência dos dados.</p>
+    </section>
+
+    <section>
+      <h2>3. Metodologia</h2>
+      <p><b>Dados:</b> Johns Hopkins University (195 países, 2020–2023), Ministério da Saúde do Brasil (1.143 dias), Consórcio de Veículos de Imprensa (1.043 dias) e CDC/EUA (234 semanas). A China foi excluída após um salto inexplicado de ~31 mil para 3,52 milhões de casos em uma semana (dez/2022).</p>
+      <p>De cada variação diária de óbitos extraiu-se o <b>primeiro dígito</b>, comparado à frequência esperada:</p>
+      <div class="eq"><span>P(d) = log<sub>10</sub>(1 + <span class="frac"><span>1</span><span>d</span></span>), &nbsp;d = 1,…,9</span><span class="n">(1)</span></div>
+      <table>
+        <tr><th>Dígito</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th></tr>
+        <tr><td>Esperado</td><td>30,1%</td><td>17,6%</td><td>12,5%</td><td>9,7%</td><td>7,9%</td><td>6,7%</td><td>5,8%</td><td>5,1%</td><td>4,6%</td></tr>
+      </table>
+      <p style="margin-top:8px">A conformidade foi medida pelo <b>Desvio Absoluto Médio</b> (MAD), a distância média entre o observado e o esperado, e por limites de tolerância de 95% para cada dígito (teste Z, z = 1,96):</p>
+      <div class="eq"><span>MAD = <span class="frac"><span>1</span><span>9</span></span> <span class="sig"><small>9</small>Σ<small>d=1</small></span> | p(d) − P(d) |</span><span class="n">(2)</span></div>
+      <p class="cap">Classificação (Nigrini, 2012): <span class="sw" style="background:var(--close)"></span>Próxima &lt; 0,006 &nbsp; <span class="sw" style="background:var(--ok)"></span>Aceitável &lt; 0,012 &nbsp; <span class="sw" style="background:var(--marg)"></span>Marginal &lt; 0,015 &nbsp; <span class="sw" style="background:var(--bad)"></span>Não conforme ≥ 0,015</p>
+    </section>
+  </div>
+
+  <section>
+    <h2>4. Resultados</h2>
+    <div class="row" style="grid-template-columns: 1fr 250px; gap: 16px;">
+      <figure>
+        <div class="fig mapbox">
+          <img src="../assets/world_map.svg" alt="">
+          <div class="maplegend"><span class="sw" style="background:var(--close)"></span>Próxima<br><span class="sw" style="background:var(--ok)"></span>Aceitável<br><span class="sw" style="background:var(--marg)"></span>Marginal<br><span class="sw" style="background:var(--bad)"></span>Não conforme</div>
+        </div>
+        <figcaption class="cap"><b>Figura 1.</b> Conformidade dos óbitos diários com a LNB por país (MAD, dados JHU). Áreas hachuradas: dados insuficientes para o teste.</figcaption>
+      </figure>
+      <div class="key">
+        <div><div class="num">146</div><div class="lbl">países com dados suficientes para o teste</div></div>
+        <div><div class="num" style="color:var(--bad)">113 (77%)</div><div class="lbl">não conformes com a LNB</div></div>
+        <div><div class="num">0,024</div><div class="lbl">MAD mediano global (média 0,026)</div></div>
+        <div><div class="num" style="color:var(--ok)">Japão</div><div class="lbl">melhor aderência entre as séries longas: MAD 0,0078 (n = 1.066)</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="row c3">
+    <figure>
+      <div class="fig chartbox"><img src="../assets/brasil_ms.svg" alt=""></div>
+      <figcaption class="cap"><b>Figura 2.</b> Brasil, Ministério da Saúde: MAD 0,0129, <b>marginal</b>. Barras: observado; linha: LNB; faixa azul: tolerância de 95%; laranja: dígito fora da tolerância.</figcaption>
+    </figure>
+    <figure>
+      <div class="fig chartbox"><img src="../assets/cvi.svg" alt=""></div>
+      <figcaption class="cap"><b>Figura 3.</b> Brasil, Consórcio de Veículos de Imprensa: MAD 0,0170, <b>não conforme</b>. Dígito 1 sobrerrepresentado (33,3% vs. 30,1%).</figcaption>
+    </figure>
+    <figure>
+      <div class="fig chartbox"><img src="../assets/japan.svg" alt=""></div>
+      <figcaption class="cap"><b>Figura 4.</b> Japão: MAD 0,0078, <b>aceitável</b>, o melhor ajuste com amostra grande. Apenas o dígito 8 sai da tolerância.</figcaption>
+    </figure>
+  </div>
+
+  <div class="row c2">
+    <section>
+      <h2>5. Discussão e impacto</h2>
+      <ul>
+        <li><b>Mesmo país, fontes diferentes, resultados diferentes:</b> os dados do Ministério da Saúde aderem mais à LNB que os do consórcio de imprensa. O método de coleta afeta a qualidade do dado.</li>
+        <li><b>A frequência de notificação importa:</b> nos EUA, a série semanal do CDC (MAD 0,0159) é não conforme, enquanto a série diária da JHU fica em 0,0061.</li>
+        <li><b>Ferramenta barata e reproduzível:</b> precisa apenas de dados públicos para indicar <b>onde</b> auditar, e pode ser aplicada em epidemias futuras.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>6. Conclusão</h2>
+      <div class="box">A maioria dos países não segue estritamente a LNB. <b>Desvio não é prova de fraude</b>: atrasos de notificação, amostras pequenas e revisões também afastam os dados da curva. A LNB funciona como um <b>sinal de alerta</b> que orienta investigações mais detalhadas sobre a qualidade dos dados de saúde pública.</div>
+      <h2 style="margin-top:12px">Referências</h2>
+      <ol class="refs" style="padding-left:16px">
+        <li>Newcomb, S. (1881). Note on the frequency of use of the different digits in natural numbers. <i>Am. J. Math.</i>, 4(1).</li>
+        <li>Nigrini, M. J. (2012). <i>Benford's Law: Applications for Forensic Accounting, Auditing, and Fraud Detection</i>. Wiley.</li>
+        <li>Drake, P. D. &amp; Nigrini, M. J. (2000). Computer assisted analytical procedures using Benford's Law. <i>J. Account. Educ.</i>, 18(2).</li>
+        <li>Dong, E., Du, H. &amp; Gardner, L. (2020). An interactive web-based dashboard to track COVID-19 in real time. <i>Lancet Infect. Dis.</i>, 20(5).</li>
+              </ol>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <span><b>Apoio:</b> CNPq – Programa Institucional de Bolsas de Iniciação em Desenvolvimento Tecnológico e Inovação (PIBITI)</span>
+  <span><b>Código e dados:</b> github.com/koobzaar/lutero</span>
+</footer>
+
+</body>
+</html>
